@@ -90,11 +90,11 @@ const AdminPhotoUpload: React.FC = () => {
             };
 
             try {
-              const storedPhotos = JSON.parse(localStorage.getItem('productPhotos') || '[]');
+              let storedPhotos = JSON.parse(localStorage.getItem('productPhotos') || '[]');
               
               // Лімітуємо: максимум 10 фото
               if (storedPhotos.length >= 10) {
-                storedPhotos.pop(); // Видаляємо найстарішу
+                storedPhotos = storedPhotos.slice(0, 9); // Видаляємо найстарішу
               }
               
               storedPhotos.unshift(newPhoto);
