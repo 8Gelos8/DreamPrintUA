@@ -67,6 +67,7 @@ const Admin: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Введіть пароль..."
+                autoComplete="current-password"
                 className="w-full px-4 py-3 rounded-xl border border-stone-200 shadow-sm focus:border-dream-purple focus:ring focus:ring-dream-purple/20 transition-all"
               />
             </div>

@@ -35,7 +35,11 @@ export const commitToGitHub = async (
     if (getResponse.ok) {
       const data = await getResponse.json();
       sha = data.sha;
+    } else if (getResponse.status !== 404) {
+      // Якщо це не 404, то це помилка
+      throw new Error(`GitHub API error: ${getResponse.status}`);
     }
+    // Якщо 404 - файл новий
 
     // Кодуємо вміст в base64
     const encodedContent = btoa(unescape(encodeURIComponent(content)));

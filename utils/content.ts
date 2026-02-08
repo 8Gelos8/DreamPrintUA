@@ -47,7 +47,11 @@ export const syncContentToGitHub = async (
     if (getResponse.ok) {
       const data = await getResponse.json();
       sha = data.sha;
+    } else if (getResponse.status !== 404) {
+      // Якщо це не 404 (файл не існує), то це помилка
+      throw new Error(`GitHub API error: ${getResponse.status}`);
     }
+    // Якщо 404 - файл новий, sha залишиться null
 
     // Кодуємо вміст
     const encodedContent = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2))));

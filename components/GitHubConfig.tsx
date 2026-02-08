@@ -62,6 +62,7 @@ const GitHubConfig: React.FC = () => {
             value={token}
             onChange={(e) => setToken(e.target.value)}
             placeholder="ghp_xxxxxxxxxxxxxxx"
+            autoComplete="new-password"
             className="w-full px-4 py-2 rounded-lg border border-stone-200 shadow-sm focus:border-dream-cyan focus:ring focus:ring-dream-cyan/20 transition-all"
           />
         </div>
