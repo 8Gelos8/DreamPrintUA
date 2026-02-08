@@ -90,7 +90,7 @@ const AdminPhotoUpload: React.FC = () => {
             };
 
             try {
-              let storedPhotos = JSON.parse(localStorage.getItem('productPhotos') || '[]');
+              let storedPhotos = JSON.parse(localStorage.getItem('productPhotos_v2') || '[]');
               
               // Лімітуємо: максимум 10 фото
               if (storedPhotos.length >= 10) {
@@ -113,7 +113,7 @@ const AdminPhotoUpload: React.FC = () => {
               }
               
               storedPhotos.unshift(newPhoto);
-              localStorage.setItem('productPhotos', JSON.stringify(storedPhotos));
+              localStorage.setItem('productPhotos_v2', JSON.stringify(storedPhotos));
 
               // Show success
               setTimeout(() => {

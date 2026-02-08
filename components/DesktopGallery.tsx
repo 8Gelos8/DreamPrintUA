@@ -113,7 +113,7 @@ const DesktopGallery: React.FC = () => {
   }, [loadFromGitHub]);
 
   const loadUserPhotos = useCallback(() => {
-    const stored = localStorage.getItem('productPhotos') || '[]';
+    const stored = localStorage.getItem('productPhotos_v2') || '[]';
     try {
       const photos = JSON.parse(stored);
       setUserPhotos(photos);
@@ -124,7 +124,7 @@ const DesktopGallery: React.FC = () => {
 
   const deleteUserPhoto = (id: string) => {
     const updated = userPhotos.filter(p => p.id !== id);
-    localStorage.setItem('productPhotos', JSON.stringify(updated));
+    localStorage.setItem('productPhotos_v2', JSON.stringify(updated));
     setUserPhotos(updated);
   };
 
