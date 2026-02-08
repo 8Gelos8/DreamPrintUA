@@ -8,6 +8,16 @@ import About from './pages/About';
 import Admin from './pages/Admin';
 
 const App: React.FC = () => {
+  React.useEffect(() => {
+    console.log('[App v5e61dd0] Rendering - checking localStorage keys:', {
+      hasProductPhotos_v2: !!localStorage.getItem('productPhotos_v2'),
+      hasProductPhotos_old: !!localStorage.getItem('productPhotos'),
+      hasAdminAuth: !!localStorage.getItem('adminAuth'),
+      keys: Object.keys(localStorage),
+      timestamp: new Date().toISOString()
+    });
+  }, []);
+
   return (
     <Router>
       <Layout>

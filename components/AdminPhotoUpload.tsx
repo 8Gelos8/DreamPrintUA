@@ -40,6 +40,12 @@ const AdminPhotoUpload: React.FC = () => {
     e.preventDefault();
     if (!selectedFile || !previewUrl) return;
 
+    console.log('[AdminPhotoUpload v5e61dd0] Starting upload:', {
+      fileName: selectedFile.name,
+      fileSize: selectedFile.size,
+      timestamp: new Date().toISOString()
+    });
+
     // Save to localStorage as a product photo
     const reader = new FileReader();
     reader.onerror = () => {
@@ -47,6 +53,7 @@ const AdminPhotoUpload: React.FC = () => {
     };
     reader.onload = (event) => {
       if (typeof event.target?.result === 'string') {
+        console.log('[AdminPhotoUpload] FileReader loaded, starting compression');
         // Стискаємо фото якість (максимум 500x500, якість 0.7)
         const img = new Image();
         img.onerror = () => {
@@ -81,6 +88,7 @@ const AdminPhotoUpload: React.FC = () => {
 
             ctx.drawImage(img, 0, 0, width, height);
             const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+            console.log('[AdminPhotoUpload] Image compressed, size:', compressedImage.length);
 
             const newPhoto = {
               id: Date.now().toString(),
@@ -91,21 +99,27 @@ const AdminPhotoUpload: React.FC = () => {
 
             try {
               let storedPhotos = JSON.parse(localStorage.getItem('productPhotos_v2') || '[]');
+              console.log('[AdminPhotoUpload] Current photos count:', storedPhotos.length);
               
               // Лімітуємо: максимум 10 фото
               if (storedPhotos.length >= 10) {
+                console.log('[AdminPhotoUpload] Removing oldest photo (limit reached)');
                 storedPhotos = storedPhotos.slice(0, 9); // Видаляємо найстарішу
               }
               
               // Check if we have enough space before saving
               const testString = JSON.stringify([...storedPhotos, newPhoto]);
+              console.log('[AdminPhotoUpload] Testing quota, data size:', testString.length);
               try {
                 const testKey = 'quota_test_' + Date.now();
                 localStorage.setItem(testKey, testString);
                 localStorage.removeItem(testKey);
+                console.log('[AdminPhotoUpload] Quota test passed');
               } catch (e) {
+                console.log('[AdminPhotoUpload] Quota test failed:', e);
                 if (e instanceof Error && e.name === 'QuotaExceededError') {
                   // Clear more old photos if still not enough space
+                  console.log('[AdminPhotoUpload] Removing 3 more photos due to quota');
                   storedPhotos = storedPhotos.slice(0, Math.max(0, storedPhotos.length - 3));
                 } else {
                   throw e;
@@ -113,7 +127,10 @@ const AdminPhotoUpload: React.FC = () => {
               }
               
               storedPhotos.unshift(newPhoto);
-              localStorage.setItem('productPhotos_v2', JSON.stringify(storedPhotos));
+              const finalData = JSON.stringify(storedPhotos);
+              console.log('[AdminPhotoUpload] Saving to localStorage_v2, total size:', finalData.length);
+              localStorage.setItem('productPhotos_v2', finalData);
+              console.log('[AdminPhotoUpload] Successfully saved, total photos:', storedPhotos.length);
 
               // Show success
               setTimeout(() => {
@@ -125,6 +142,7 @@ const AdminPhotoUpload: React.FC = () => {
                 }, 2000);
               }, 800);
             } catch (storageError) {
+              console.error('[AdminPhotoUpload] Storage error:', storageError);
               if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
                 setError('Помилка: Недостатньо місця. Видаліть старі фото.');
               } else {
