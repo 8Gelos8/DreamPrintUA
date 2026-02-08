@@ -2,6 +2,14 @@
   "homeTitle": "DreamPrintUA",
   "homeDescription": "Створюємо мрії з якістю та любов'ю",
   "aboutText": "Ми спеціалізуємося на персоналізованому друці та handmade виробах",
-  "products": [],
+  "products": [
+    {
+      "id": "1770585347554",
+      "title": "11111",
+      "description": "1111111111111111111111111111",
+      "imageUrl": "https://via.placeholder.com/300",
+      "category": "printing"
+    }
+  ],
   "prices": []
 }
