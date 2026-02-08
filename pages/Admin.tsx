@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
 import AdminPhotoUpload from '../components/AdminPhotoUpload';
+import GitHubConfig from '../components/GitHubConfig';
 
 const Admin: React.FC = () => {
   const { isAdmin, login, isLoading } = useAdmin();
@@ -77,6 +78,7 @@ const Admin: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <GitHubConfig />
       <AdminPhotoUpload />
     </div>
   );
