@@ -11,5 +11,11 @@
       "category": "printing"
     }
   ],
-  "prices": []
+  "prices": [
+    {
+      "service": "Патч",
+      "price": "150 грн",
+      "details": "Деталі"
+    }
+  ]
 }
