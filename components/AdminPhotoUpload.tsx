@@ -97,6 +97,21 @@ const AdminPhotoUpload: React.FC = () => {
                 storedPhotos = storedPhotos.slice(0, 9); // Видаляємо найстарішу
               }
               
+              // Check if we have enough space before saving
+              const testString = JSON.stringify([...storedPhotos, newPhoto]);
+              try {
+                const testKey = 'quota_test_' + Date.now();
+                localStorage.setItem(testKey, testString);
+                localStorage.removeItem(testKey);
+              } catch (e) {
+                if (e instanceof Error && e.name === 'QuotaExceededError') {
+                  // Clear more old photos if still not enough space
+                  storedPhotos = storedPhotos.slice(0, Math.max(0, storedPhotos.length - 3));
+                } else {
+                  throw e;
+                }
+              }
+              
               storedPhotos.unshift(newPhoto);
               localStorage.setItem('productPhotos', JSON.stringify(storedPhotos));
 

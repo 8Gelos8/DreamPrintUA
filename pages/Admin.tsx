@@ -60,8 +60,10 @@ const Admin: React.FC = () => {
               </div>
             )}
             
-            <label style={{ display: 'none' }}>
+            <label htmlFor="username-field" style={{ display: 'none' }}>
+              Ім'я користувача
               <input
+                id="username-field"
                 type="text"
                 name="username"
                 value="admin"
