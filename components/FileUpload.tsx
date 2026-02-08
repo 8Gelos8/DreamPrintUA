@@ -1,20 +1,29 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, X, CheckCircle, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { UploadCloud, X, CheckCircle, Image as ImageIcon, Sparkles, Lock, LockOpen } from 'lucide-react';
 
 const FileUpload: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [description, setDescription] = useState('');
-  const [isSent, setIsSent] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(false);
+  const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const ADMIN_PASSWORD = 'dream2024'; // Секретний пароль
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
+      if (file.size > 10 * 1024 * 1024) {
+        setError('Файл занадто великий (макс 10MB)');
+        return;
+      }
       setSelectedFile(file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
-      setIsSent(false);
+      setError('');
     }
   };
 
@@ -25,7 +34,19 @@ const FileUpload: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      setPassword('');
+      setError('');
+    } else {
+      setError('Неправильний пароль');
+      setPassword('');
+    }
+  };
+
+  const handleUpload = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile || !previewUrl) return;
 
@@ -45,10 +66,10 @@ const FileUpload: React.FC = () => {
         
         // Show success
         setTimeout(() => {
-          setIsSent(true);
+          setIsUploaded(true);
           setTimeout(() => {
             handleClear();
-            setIsSent(false);
+            setIsUploaded(false);
             // Trigger refresh in parent
             window.dispatchEvent(new Event('photosUpdated'));
           }, 2000);
@@ -64,19 +85,58 @@ const FileUpload: React.FC = () => {
         <div className="p-2 bg-dream-pink rounded-xl text-white shadow-lg shadow-dream-pink/30">
             <UploadCloud size={28} />
         </div>
-        Замовити Друк
+        {isAuthenticated ? 'Завантажити Фото' : 'Адмін Панель'}
       </h3>
       
-      {isSent ? (
+      {!isAuthenticated ? (
+        // Password Form
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div className="flex items-center justify-center p-8 bg-gradient-to-br from-dream-pink/10 to-dream-purple/10 rounded-2xl border-2 border-dashed border-stone-300">
+            <Lock className="text-stone-400 mr-3" size={24} />
+            <p className="text-stone-600 font-medium">Введіть пароль для завантаження фото</p>
+          </div>
+          
+          {error && (
+            <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 font-medium">
+              {error}
+            </div>
+          )}
+          
+          <div>
+            <label className="block text-sm font-bold text-stone-700 mb-2">Пароль</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Введіть пароль..."
+              className="w-full px-4 py-3 rounded-xl border-stone-200 shadow-sm focus:border-dream-purple focus:ring focus:ring-dream-purple/20 transition-all"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-4 px-6 rounded-xl font-black text-lg text-white bg-gradient-to-r from-dream-purple via-dream-pink to-dream-orange hover:shadow-lg shadow-dream-pink/40 transition-all transform hover:-translate-y-1 active:scale-95"
+          >
+            УВІЙТИ
+          </button>
+        </form>
+      ) : isUploaded ? (
+        // Success Message
         <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-20 h-20 bg-dream-green/20 rounded-full flex items-center justify-center mb-6 animate-bounce">
                 <CheckCircle size={48} className="text-dream-green" />
             </div>
-            <h4 className="text-2xl font-bold text-stone-800 mb-2">Замовлення надіслано!</h4>
-            <p className="text-stone-500">Ми зв'яжемося з вами найближчим часом для уточнення деталей.</p>
+            <h4 className="text-2xl font-bold text-stone-800 mb-2">Фото завантажено!</h4>
+            <p className="text-stone-500">Воно з'явилось на робочому столі 📸</p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        // Upload Form
+        <form onSubmit={handleUpload} className="space-y-6">
+          {error && (
+            <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 font-medium">
+              {error}
+            </div>
+          )}
           
           {/* Upload Area */}
           <div className="relative group">
@@ -89,7 +149,7 @@ const FileUpload: React.FC = () => {
                   <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all z-10">
                       <ImageIcon className="text-stone-300 group-hover:text-dream-cyan" size={40} />
                   </div>
-                  <p className="text-stone-700 font-bold text-lg z-10">Завантажити фото</p>
+                  <p className="text-stone-700 font-bold text-lg z-10">Завантажити фото твого виробу</p>
                   <p className="text-sm text-stone-400 mt-1 z-10">JPG, PNG до 10MB</p>
                 </div>
              ) : (
@@ -116,29 +176,40 @@ const FileUpload: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-stone-700 mb-2 ml-1">Ваші побажання</label>
+            <label className="block text-sm font-bold text-stone-700 mb-2 ml-1">Назва виробу (опційно)</label>
             <div className="relative">
-                <textarea 
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Наприклад: хочу це фото на білій чашці з написом 'Найкращій Мамі'..."
-                className="w-full rounded-2xl border-stone-200 shadow-sm focus:border-dream-purple focus:ring focus:ring-dream-purple/20 min-h-[120px] p-4 resize-none transition-all"
+                <input 
+                  type="text"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Наприклад: Чашка з логотипом, Свічка 'Love', Брелок..."
+                  className="w-full px-4 py-3 rounded-2xl border-stone-200 shadow-sm focus:border-dream-purple focus:ring focus:ring-dream-purple/20 transition-all"
                 />
-                <Sparkles className="absolute right-3 bottom-3 text-dream-purple/30 pointer-events-none" size={20} />
+                <Sparkles className="absolute right-3 top-3 text-dream-purple/30 pointer-events-none" size={20} />
             </div>
           </div>
 
-          <button 
-            type="submit"
-            disabled={!selectedFile}
-            className={`w-full py-4 px-6 rounded-xl font-black text-lg text-white shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 ${
-              selectedFile 
-              ? 'bg-gradient-to-r from-dream-purple via-dream-pink to-dream-orange hover:shadow-dream-pink/40' 
-              : 'bg-stone-200 cursor-not-allowed text-stone-400'
-            }`}
-          >
-            ВІДПРАВИТИ ЗАМОВЛЕННЯ
-          </button>
+          <div className="flex gap-3">
+            <button 
+              type="submit"
+              disabled={!selectedFile}
+              className={`flex-1 py-4 px-6 rounded-xl font-black text-lg text-white shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 ${
+                selectedFile 
+                ? 'bg-gradient-to-r from-dream-purple via-dream-pink to-dream-orange hover:shadow-dream-pink/40' 
+                : 'bg-stone-200 cursor-not-allowed text-stone-400'
+              }`}
+            >
+              ЗАВАНТАЖИТИ
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setIsAuthenticated(false)}
+              className="px-6 py-4 rounded-xl font-bold bg-stone-100 text-stone-700 hover:bg-red-50 hover:text-red-700 transition-all"
+            >
+              Вихід
+            </button>
+          </div>
         </form>
       )}
     </div>
