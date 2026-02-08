@@ -42,14 +42,18 @@ const AdminPhotoUpload: React.FC = () => {
 
     // Save to localStorage as a product photo
     const reader = new FileReader();
+    reader.onerror = () => {
+      setError('Помилка при читанні файлу');
+    };
     reader.onload = (event) => {
       if (typeof event.target?.result === 'string') {
-        try {
-          const storedPhotos = JSON.parse(localStorage.getItem('productPhotos') || '[]');
-          
-          // Стискаємо фото якість (максимум 500x500, якість 0.7)
-          const img = new Image();
-          img.onload = () => {
+        // Стискаємо фото якість (максимум 500x500, якість 0.7)
+        const img = new Image();
+        img.onerror = () => {
+          setError('Помилка при завантаженні зображення');
+        };
+        img.onload = () => {
+          try {
             const canvas = document.createElement('canvas');
             const maxSize = 500;
             let width = img.width;
@@ -70,16 +74,23 @@ const AdminPhotoUpload: React.FC = () => {
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0, width, height);
-              const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+            if (!ctx) {
+              setError('Помилка при обробці зображення');
+              return;
+            }
 
-              const newPhoto = {
-                id: Date.now().toString(),
-                imageUrl: compressedImage,
-                title: description.trim() || selectedFile.name.replace(/\.[^/.]+$/, ''),
-                timestamp: new Date().toISOString(),
-              };
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+
+            const newPhoto = {
+              id: Date.now().toString(),
+              imageUrl: compressedImage,
+              title: description.trim() || selectedFile.name.replace(/\.[^/.]+$/, ''),
+              timestamp: new Date().toISOString(),
+            };
+
+            try {
+              const storedPhotos = JSON.parse(localStorage.getItem('productPhotos') || '[]');
               
               // Лімітуємо: максимум 10 фото
               if (storedPhotos.length >= 10) {
@@ -98,13 +109,20 @@ const AdminPhotoUpload: React.FC = () => {
                   window.dispatchEvent(new Event('photosUpdated'));
                 }, 2000);
               }, 800);
+            } catch (storageError) {
+              if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
+                setError('Помилка: Недостатньо місця. Видаліть старі фото.');
+              } else {
+                setError('Помилка при збереженні фото');
+              }
+              console.error('Storage error:', storageError);
             }
-          };
-          img.src = event.target.result as string;
-        } catch (e) {
-          setError('Помилка: Недостатньо місця. Видаліть старі фото.');
-          console.error(e);
-        }
+          } catch (e) {
+            setError('Помилка при обробці фото');
+            console.error('Processing error:', e);
+          }
+        };
+        img.src = event.target.result as string;
       }
     };
     reader.readAsDataURL(selectedFile);

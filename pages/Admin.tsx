@@ -48,7 +48,7 @@ const Admin: React.FC = () => {
             Адмін Панель
           </h1>
           
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6" autoComplete="off">
             <div className="flex items-center justify-center p-8 bg-gradient-to-br from-dream-pink/10 to-dream-purple/10 rounded-2xl border-2 border-dashed border-stone-300">
               <Lock className="text-stone-400 mr-3" size={24} />
               <p className="text-stone-600 font-medium">Введіть пароль для доступу</p>
@@ -60,10 +60,21 @@ const Admin: React.FC = () => {
               </div>
             )}
             
-            <div style={{ display: 'none' }}>
-              <label>Username</label>
-              <input type="text" value="admin" readOnly autoComplete="username" />
-            </div>
+            <input
+              type="text"
+              name="username"
+              value="admin"
+              readOnly
+              autoComplete="username"
+              aria-hidden="true"
+              tabIndex={-1}
+              style={{
+                position: 'absolute',
+                left: '-9999px',
+                opacity: 0,
+                pointerEvents: 'none',
+              }}
+            />
             
             <div>
               <label className="block text-sm font-bold text-stone-700 mb-2">Пароль</label>
