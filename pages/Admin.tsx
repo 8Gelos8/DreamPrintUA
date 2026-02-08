@@ -60,6 +60,11 @@ const Admin: React.FC = () => {
               </div>
             )}
             
+            <div style={{ display: 'none' }}>
+              <label>Username</label>
+              <input type="text" value="admin" readOnly autoComplete="username" />
+            </div>
+            
             <div>
               <label className="block text-sm font-bold text-stone-700 mb-2">Пароль</label>
               <input

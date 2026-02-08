@@ -44,26 +44,67 @@ const AdminPhotoUpload: React.FC = () => {
     const reader = new FileReader();
     reader.onload = (event) => {
       if (typeof event.target?.result === 'string') {
-        const storedPhotos = JSON.parse(localStorage.getItem('productPhotos') || '[]');
-        const newPhoto = {
-          id: Date.now().toString(),
-          imageUrl: event.target.result,
-          title: description.trim() || selectedFile.name.replace(/\.[^/.]+$/, ''),
-          timestamp: new Date().toISOString(),
-        };
-        storedPhotos.unshift(newPhoto);
-        localStorage.setItem('productPhotos', JSON.stringify(storedPhotos));
-        
-        // Show success
-        setTimeout(() => {
-          setIsUploaded(true);
-          setTimeout(() => {
-            handleClear();
-            setIsUploaded(false);
-            // Trigger refresh in parent
-            window.dispatchEvent(new Event('photosUpdated'));
-          }, 2000);
-        }, 800);
+        try {
+          const storedPhotos = JSON.parse(localStorage.getItem('productPhotos') || '[]');
+          
+          // Стискаємо фото якість (максимум 500x500, якість 0.7)
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxSize = 500;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxSize) {
+                height *= maxSize / width;
+                width = maxSize;
+              }
+            } else {
+              if (height > maxSize) {
+                width *= maxSize / height;
+                height = maxSize;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+
+              const newPhoto = {
+                id: Date.now().toString(),
+                imageUrl: compressedImage,
+                title: description.trim() || selectedFile.name.replace(/\.[^/.]+$/, ''),
+                timestamp: new Date().toISOString(),
+              };
+              
+              // Лімітуємо: максимум 10 фото
+              if (storedPhotos.length >= 10) {
+                storedPhotos.pop(); // Видаляємо найстарішу
+              }
+              
+              storedPhotos.unshift(newPhoto);
+              localStorage.setItem('productPhotos', JSON.stringify(storedPhotos));
+
+              // Show success
+              setTimeout(() => {
+                setIsUploaded(true);
+                setTimeout(() => {
+                  handleClear();
+                  setIsUploaded(false);
+                  window.dispatchEvent(new Event('photosUpdated'));
+                }, 2000);
+              }, 800);
+            }
+          };
+          img.src = event.target.result as string;
+        } catch (e) {
+          setError('Помилка: Недостатньо місця. Видаліть старі фото.');
+          console.error(e);
+        }
       }
     };
     reader.readAsDataURL(selectedFile);
