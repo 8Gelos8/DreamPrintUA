@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AdminProvider } from './contexts/AdminContext';
+import { ContentProvider } from './contexts/ContentContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -12,7 +13,9 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <AdminProvider>
-      <App />
+      <ContentProvider>
+        <App />
+      </ContentProvider>
     </AdminProvider>
   </React.StrictMode>
 );
