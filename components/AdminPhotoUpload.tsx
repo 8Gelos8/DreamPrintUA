@@ -1,17 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, X, CheckCircle, Image as ImageIcon, Sparkles, Lock } from 'lucide-react';
+import { UploadCloud, X, CheckCircle, Image as ImageIcon, Sparkles, LogOut } from 'lucide-react';
+import { useAdmin } from '../contexts/AdminContext';
 
 const AdminPhotoUpload: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
+  const { logout } = useAdmin();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [isUploaded, setIsUploaded] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const ADMIN_PASSWORD = 'dream2024'; // Секретний пароль
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -34,16 +32,8 @@ const AdminPhotoUpload: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      setPassword('');
-      setError('');
-    } else {
-      setError('Неправильний пароль');
-      setPassword('');
-    }
+  const handleLogout = () => {
+    logout();
   };
 
   const handleUpload = (e: React.FormEvent) => {
@@ -81,46 +71,23 @@ const AdminPhotoUpload: React.FC = () => {
 
   return (
     <div className="bg-white rounded-3xl p-8 border border-white/50 backdrop-blur-sm shadow-xl">
-      <h3 className="text-3xl font-display font-black text-stone-800 mb-8 flex items-center gap-3">
-        <div className="p-2 bg-dream-pink rounded-xl text-white shadow-lg shadow-dream-pink/30">
-            <UploadCloud size={28} />
+      <h3 className="text-3xl font-display font-black text-stone-800 mb-8 flex items-center gap-3 justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-dream-pink rounded-xl text-white shadow-lg shadow-dream-pink/30">
+              <UploadCloud size={28} />
+          </div>
+          Адмін Панель
         </div>
-        Адмін Панель
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors font-bold text-sm"
+        >
+          <LogOut size={18} />
+          Вихід
+        </button>
       </h3>
       
-      {!isAuthenticated ? (
-        // Password Form
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="flex items-center justify-center p-8 bg-gradient-to-br from-dream-pink/10 to-dream-purple/10 rounded-2xl border-2 border-dashed border-stone-300">
-            <Lock className="text-stone-400 mr-3" size={24} />
-            <p className="text-stone-600 font-medium">Введіть пароль для доступу</p>
-          </div>
-          
-          {error && (
-            <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 font-medium">
-              {error}
-            </div>
-          )}
-          
-          <div>
-            <label className="block text-sm font-bold text-stone-700 mb-2">Пароль</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Введіть пароль..."
-              className="w-full px-4 py-3 rounded-xl border border-stone-200 shadow-sm focus:border-dream-purple focus:ring focus:ring-dream-purple/20 transition-all"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-4 px-6 rounded-xl font-black text-lg text-white bg-gradient-to-r from-dream-purple via-dream-pink to-dream-orange hover:shadow-lg shadow-dream-pink/40 transition-all transform hover:-translate-y-1 active:scale-95"
-          >
-            УВІЙТИ
-          </button>
-        </form>
-      ) : isUploaded ? (
+      {isUploaded ? (
         // Success Message
         <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-20 h-20 bg-dream-green/20 rounded-full flex items-center justify-center mb-6 animate-bounce">
@@ -200,14 +167,6 @@ const AdminPhotoUpload: React.FC = () => {
               }`}
             >
               ЗАВАНТАЖИТИ
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => setIsAuthenticated(false)}
-              className="px-6 py-4 rounded-xl font-bold bg-stone-100 text-stone-700 hover:bg-red-50 hover:text-red-700 transition-all"
-            >
-              Вихід
             </button>
           </div>
         </form>
