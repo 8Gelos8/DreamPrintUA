@@ -28,7 +28,6 @@ const DesktopGallery: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [userPhotos, setUserPhotos] = useState<GalleryItem[]>([]);
   const [positionedItems, setPositionedItems] = useState<PositionedItem[]>([]);
-  const [requiredHeight, setRequiredHeight] = useState(700);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Generate random positions with collision detection
@@ -178,19 +177,9 @@ const DesktopGallery: React.FC = () => {
       const rect = containerRef.current.getBoundingClientRect();
       // Use container dimensions or fallback to defaults
       const width = rect.width > 0 ? rect.width : 1200;
-      const height = rect.height > 0 ? rect.height : 700;
+      const height = 2000; // Large virtual height to avoid clustering
       const positioned = generatePositions(allItems, width, height);
       setPositionedItems(positioned);
-
-      // Calculate required height based on positioned items
-      let maxBottom = 700;
-      positioned.forEach(item => {
-        const bottom = item.y + item.height + 40; // 40px padding at bottom
-        if (bottom > maxBottom) {
-          maxBottom = bottom;
-        }
-      });
-      setRequiredHeight(maxBottom);
     }
   }, [allItems, generatePositions]);
 
@@ -201,8 +190,7 @@ const DesktopGallery: React.FC = () => {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl shadow-inner border-4 border-white perspective-1000 overflow-y-auto"
-      style={{ minHeight: '700px', height: `${requiredHeight}px` }}
+      className="relative w-full h-[700px] overflow-y-auto bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl shadow-inner border-4 border-white perspective-1000"
     >
       {/* Desk texture */}
       <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
