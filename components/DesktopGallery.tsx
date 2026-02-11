@@ -260,15 +260,11 @@ const DesktopGallery: React.FC = () => {
             animate={
               isHovered
                 ? {
-                    x: 'calc(50vw - 50%)',
-                    y: 'calc(50vh - 50%)',
                     scale: 1.3,
                     zIndex: 50,
                     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
                   }
                 : {
-                    x: item.x,
-                    y: item.y,
                     scale: 1,
                     zIndex: 1,
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
