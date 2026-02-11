@@ -35,87 +35,56 @@ const DesktopGallery: React.FC = () => {
     const CARD_WIDTHS = [140, 160, 180];
     const CARD_HEIGHTS = [180, 200, 220];
     const PADDING = 20;
-    const MAX_ATTEMPTS = 50;
+
+    // Simple pseudo-random number generator for deterministic but varied positions
+    const seededRandom = (seed: number) => {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    };
 
     const positioned: PositionedItem[] = [];
     
+    // Divide container into a grid and distribute items
+    const cols = Math.floor((containerWidth - PADDING * 2) / 200);
+    const rows = Math.floor((containerHeight - PADDING * 2) / 250);
+    const cellWidth = (containerWidth - PADDING * 2) / Math.max(1, cols);
+    const cellHeight = (containerHeight - PADDING * 2) / Math.max(1, rows);
+    
+    let gridIndex = 0;
+    
     for (const item of allItems) {
-      let placed = false;
-      let attempts = 0;
-
-      // Deterministic seed based on item ID
+      // Deterministic size based on item ID
       const seed = item.id.charCodeAt(0) + item.id.charCodeAt(1) || 0;
-      const widthIdx = (seed * 7) % CARD_WIDTHS.length;
-      const heightIdx = (seed * 11) % CARD_HEIGHTS.length;
+      const widthIdx = seed % CARD_WIDTHS.length;
+      const heightIdx = (seed * 2) % CARD_HEIGHTS.length;
       const width = CARD_WIDTHS[widthIdx];
       const height = CARD_HEIGHTS[heightIdx];
 
-      while (!placed && attempts < MAX_ATTEMPTS) {
-        // Random position within bounds
-        const randomSeed = seed + attempts * 17;
-        const maxX = Math.max(PADDING, containerWidth - width - PADDING);
-        const maxY = Math.max(PADDING, containerHeight - height - PADDING);
-        const x = PADDING + Math.abs(randomSeed * 31) % Math.max(1, maxX - PADDING);
-        const y = PADDING + Math.abs(randomSeed * 43) % Math.max(1, maxY - PADDING);
-        const rotation = ((randomSeed * 13) % 30) - 15;
+      // Position based on grid cell with randomization
+      const row = Math.floor(gridIndex / Math.max(1, cols));
+      const col = gridIndex % Math.max(1, cols);
+      
+      const cellX = PADDING + col * cellWidth;
+      const cellY = PADDING + row * cellHeight;
+      
+      // Add randomness within the cell
+      const randomX = seededRandom(seed + 1) * (cellWidth - width - 20);
+      const randomY = seededRandom(seed + 2) * (cellHeight - height - 20);
+      
+      const x = Math.max(PADDING, Math.min(containerWidth - width - PADDING, cellX + randomX));
+      const y = Math.max(PADDING, Math.min(containerHeight - height - PADDING, cellY + randomY));
+      const rotation = (seededRandom(seed + 3) - 0.5) * 30;
 
-        // Check collision with existing items
-        let canPlace = true;
-        for (const existing of positioned) {
-          const minX = Math.min(x, existing.x);
-          const maxX = Math.max(x + width, existing.x + existing.width);
-          const minY = Math.min(y, existing.y);
-          const maxY = Math.max(y + height, existing.y + existing.height);
-
-          const overlapWidth = width + existing.width - (maxX - minX);
-          const overlapHeight = height + existing.height - (maxY - minY);
-
-          if (overlapWidth > 0 && overlapHeight > 0) {
-            const overlapArea = Math.max(0, overlapWidth) * Math.max(0, overlapHeight);
-            const cardArea = width * height;
-            const overlapPercent = (overlapArea / cardArea) * 100;
-
-            // Allow max 50% overlap
-            if (overlapPercent > 50) {
-              canPlace = false;
-              break;
-            }
-          }
-        }
-
-        if (canPlace) {
-          positioned.push({
-            ...item,
-            x,
-            y,
-            rotation,
-            width,
-            height,
-          });
-          placed = true;
-        }
-
-        attempts++;
-      }
-
-      // If couldn't find spot with low overlap, place anyway (stacking allowed when space full)
-      if (!placed) {
-        const randomSeed = seed + MAX_ATTEMPTS * 17;
-        const maxX = Math.max(PADDING, containerWidth - width - PADDING);
-        const maxY = Math.max(PADDING, containerHeight - height - PADDING);
-        const x = PADDING + Math.abs(randomSeed * 31) % Math.max(1, maxX - PADDING);
-        const y = PADDING + Math.abs(randomSeed * 43) % Math.max(1, maxY - PADDING);
-        const rotation = ((randomSeed * 13) % 30) - 15;
-
-        positioned.push({
-          ...item,
-          x,
-          y,
-          rotation,
-          width,
-          height,
-        });
-      }
+      positioned.push({
+        ...item,
+        x,
+        y,
+        rotation,
+        width,
+        height,
+      });
+      
+      gridIndex++;
     }
 
     return positioned;
