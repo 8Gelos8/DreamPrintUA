@@ -202,7 +202,10 @@ const DesktopGallery: React.FC = () => {
   useEffect(() => {
     if (containerRef.current && allItems.length > 0) {
       const rect = containerRef.current.getBoundingClientRect();
-      const positioned = generatePositions(allItems, rect.width, rect.height);
+      // Use container dimensions or fallback to defaults
+      const width = rect.width > 0 ? rect.width : 1200;
+      const height = rect.height > 0 ? rect.height : 700;
+      const positioned = generatePositions(allItems, width, height);
       setPositionedItems(positioned);
     }
   }, [allItems, generatePositions]);
