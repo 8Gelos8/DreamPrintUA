@@ -11,6 +11,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Indie+Flower&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/index.css">
+    <!-- Fallback: Tailwind CDN for development/backup -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Disable Tailwind animations for production
+      tailwind.config = {
+        corePlugins: {
+          preflight: false,
+        }
+      }
+    </script>
     <style>
       ::-webkit-scrollbar {
         width: 10px;
