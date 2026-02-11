@@ -30,38 +30,39 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const syncToGitHub = async () => {
-    console.log('[ContentContext] syncToGitHub called');
+    console.log('[ContentContext] syncToGitHub called', { timestamp: new Date().toISOString() });
     setIsSyncing(true);
     setSyncError(null);
     try {
       const config = getGitHubConfig();
-      console.log('[ContentContext] GitHub config loaded:', { username: config?.username, repo: config?.repo });
-      
+      console.log('[ContentContext] GitHub config:', { 
+        hasConfig: !!config,
+        username: config?.username,
+        repo: config?.repo,
+      });
+
       if (!config) {
         throw new Error('GitHub не налаштований. Перейдіть до GitHub Config.');
       }
 
       // Додаємо фото з localStorage до контенту перед синхронізацією
       const photos = JSON.parse(localStorage.getItem('productPhotos_v2') || '[]');
-      console.log('[ContentContext] Photos from localStorage:', photos.length);
-      
+      console.log('[ContentContext] Found photos in localStorage:', {
+        count: photos.length,
+        firstPhotoId: photos[0]?.id,
+      });
+
       const contentWithPhotos = {
         ...content,
         photos: photos,
       };
 
-      console.log('[ContentContext] Syncing with content:', {
-        homeTitle: contentWithPhotos.homeTitle,
-        products: contentWithPhotos.products.length,
-        prices: contentWithPhotos.prices.length,
-        photos: contentWithPhotos.photos.length,
-      });
-
+      console.log('[ContentContext] Calling syncContentToGitHub...');
       await syncContentToGitHub(contentWithPhotos, config.token, config.username, config.repo);
-      console.log('[ContentContext] Sync completed successfully');
+      console.log('[ContentContext] Sync completed successfully!');
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Помилка синхронізації';
-      console.error('[ContentContext] Sync error:', errorMsg);
+      console.error('[ContentContext] Sync failed:', errorMsg);
       setSyncError(errorMsg);
     } finally {
       setIsSyncing(false);

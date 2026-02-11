@@ -198,15 +198,19 @@ const AdminPhotoUpload: React.FC = () => {
       // Save all at once
       const finalData = JSON.stringify(storedPhotos);
       localStorage.setItem('productPhotos_v2', finalData);
-      console.log('[AdminPhotoUpload] Photos saved to localStorage, total:', storedPhotos.length);
+      console.log('[AdminPhotoUpload] Photos saved to localStorage:', {
+        count: storedPhotos.length,
+        dataSize: finalData.length,
+      });
 
       // Sync to GitHub so other devices see the update
-      console.log('[AdminPhotoUpload] Starting GitHub sync...');
       try {
+        console.log('[AdminPhotoUpload] Starting GitHub sync...');
         await syncToGitHub();
-        console.log('[AdminPhotoUpload] GitHub sync completed successfully');
+        console.log('[AdminPhotoUpload] GitHub sync completed!');
       } catch (syncErr) {
-        console.warn('[AdminPhotoUpload] GitHub sync failed, but photos saved locally', syncErr);
+        console.error('[AdminPhotoUpload] GitHub sync failed:', syncErr);
+        setError('Фото збережено локально, але не синхронізовано з GitHub');
       }
 
       setTimeout(() => {
