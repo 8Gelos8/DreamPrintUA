@@ -153,6 +153,7 @@ const DesktopGallery: React.FC = () => {
   }, [loadFromGitHub]);
 
   const loadUserPhotos = useCallback(() => {
+    // First try to load from localStorage
     const stored = localStorage.getItem('productPhotos_v2') || '[]';
     try {
       const photos = JSON.parse(stored);
@@ -160,6 +161,30 @@ const DesktopGallery: React.FC = () => {
     } catch (e) {
       console.error('Failed to parse user photos', e);
     }
+
+    // Also try to load from GitHub siteContent for multi-device sync
+    const loadFromGitHubContent = async () => {
+      try {
+        const config = GITHUB_CONFIG;
+        if (config.username === 'YOUR_GITHUB_USERNAME') return;
+
+        const contentUrl = `https://api.github.com/repos/${config.username}/${config.repo}/contents/src/content.json?t=${Date.now()}`;
+        const response = await fetch(contentUrl);
+        
+        if (response.ok) {
+          const data = await response.json();
+          const content = JSON.parse(atob(data.content));
+          if (content.photos && Array.isArray(content.photos)) {
+            // Merge with existing photos, but prefer GitHub version
+            setUserPhotos(content.photos);
+          }
+        }
+      } catch (error) {
+        console.warn('Could not load photos from GitHub content:', error);
+      }
+    };
+
+    loadFromGitHubContent();
   }, []);
 
   const deleteUserPhoto = (id: string) => {

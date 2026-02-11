@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, X, CheckCircle, Image as ImageIcon, Sparkles, LogOut } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
+import { useContent } from '../contexts/ContentContext';
 
 const AdminPhotoUpload: React.FC = () => {
   const { logout } = useAdmin();
+  const { syncToGitHub, isSyncing } = useContent();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [descriptions, setDescriptions] = useState<string[]>([]);
@@ -197,6 +199,13 @@ const AdminPhotoUpload: React.FC = () => {
       const finalData = JSON.stringify(storedPhotos);
       localStorage.setItem('productPhotos_v2', finalData);
 
+      // Sync to GitHub so other devices see the update
+      try {
+        await syncToGitHub();
+      } catch (syncErr) {
+        console.warn('GitHub sync failed, but photos saved locally', syncErr);
+      }
+
       setTimeout(() => {
         setIsUploaded(true);
         setTimeout(() => {
@@ -331,19 +340,20 @@ const AdminPhotoUpload: React.FC = () => {
             <div className="flex gap-3">
               <button 
                 type="submit"
-                disabled={isUploading}
+                disabled={isUploading || isSyncing}
                 className={`flex-1 py-4 px-6 rounded-xl font-black text-lg text-white shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 ${
-                  isUploading
+                  isUploading || isSyncing
                     ? 'bg-stone-300 cursor-not-allowed text-stone-500'
                     : 'bg-gradient-to-r from-dream-purple via-dream-pink to-dream-orange hover:shadow-dream-pink/40'
                 }`}
               >
-                {isUploading ? 'Завантажую...' : `ЗАВАНТАЖИТИ ${selectedFiles.length}`}
+                {isUploading ? 'Завантажую...' : isSyncing ? 'Синхронізую...' : `ЗАВАНТАЖИТИ ${selectedFiles.length}`}
               </button>
               <button 
                 type="button"
                 onClick={handleClear}
-                className="py-4 px-6 rounded-xl font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 transition-all"
+                disabled={isUploading || isSyncing}
+                className="py-4 px-6 rounded-xl font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Скасувати
               </button>
