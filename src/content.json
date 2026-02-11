@@ -2,7 +2,57 @@
   "homeTitle": "DreamPrintUA",
   "homeDescription": "Створюємо мрії з якістю та любов'ю",
   "aboutText": "Ми спеціалізуємося на персоналізованому друці та handmade виробах",
-  "products": [],
+  "products": [
+    {
+      "id": "p1",
+      "title": "Сублімаційний друк",
+      "description": "Друк будь-яких зображень на футболках, чашках, подушках та пазлах. Висока стійкість до прання.",
+      "imageUrl": "https://picsum.photos/id/400/600/400",
+      "category": "printing"
+    },
+    {
+      "id": "p2",
+      "title": "Вироби з епоксидної смоли",
+      "description": "Унікальні підвіски, підставки, годинники та брелоки ручної роботи.",
+      "imageUrl": "https://picsum.photos/id/1069/600/400",
+      "category": "handmade"
+    },
+    {
+      "id": "p3",
+      "title": "Ароматичні свічки",
+      "description": "Соєві свічки з неймовірними ароматами та дерев’яним гнотом.",
+      "imageUrl": "https://picsum.photos/id/678/600/400",
+      "category": "handmade"
+    },
+    {
+      "id": "p4",
+      "title": "Вишивка",
+      "description": "Машинна вишивка на одязі та рушниках. Індивідуальні дизайни.",
+      "imageUrl": "https://picsum.photos/id/324/600/400",
+      "category": "printing"
+    },
+    {
+      "id": "p5",
+      "title": "Гіпсові фігурки",
+      "description": "Декор для дому, кашпо для сукулентів та свічники з гіпсу.",
+      "imageUrl": "https://picsum.photos/id/1070/600/400",
+      "category": "souvenir"
+    },
+    {
+      "id": "p6",
+      "title": "3D Фігурки",
+      "description": "Друк фігурок та деталей з пластику на 3D принтері.",
+      "imageUrl": "https://picsum.photos/id/1060/600/400",
+      "category": "souvenir"
+    },
+    {
+      "id": "1770809036592",
+      "title": "Вишивка патчів",
+      "description": "вишивка патчів ",
+      "category": "printing",
+      "imageUrl": ""
+    }
+  ],
   "prices": [],
   "photos": []
 }
