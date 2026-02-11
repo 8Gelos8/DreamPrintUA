@@ -9,20 +9,45 @@ const AdminPhotoUpload: React.FC = () => {
   const [description, setDescription] = useState('');
   const [isUploaded, setIsUploaded] = useState(false);
   const [error, setError] = useState('');
+  const [isDragActive, setIsDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragRef = useRef<HTMLDivElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      if (file.size > 10 * 1024 * 1024) {
-        setError('Файл занадто великий (макс 10MB)');
-        return;
-      }
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      setError('');
+      processFile(event.target.files[0]);
     }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setIsDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const processFile = (file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Файл занадто великий (макс 10MB)');
+      return;
+    }
+    setSelectedFile(file);
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    setError('');
   };
 
   const handleClear = () => {
@@ -40,6 +65,12 @@ const AdminPhotoUpload: React.FC = () => {
     e.preventDefault();
     if (!selectedFile || !previewUrl) return;
 
+    console.log('[AdminPhotoUpload v8f7d825] Starting upload:', {
+      fileName: selectedFile.name,
+      fileSize: selectedFile.size,
+      timestamp: new Date().toISOString()
+    });
+
     // Save to localStorage as a product photo
     const reader = new FileReader();
     reader.onerror = () => {
@@ -47,6 +78,7 @@ const AdminPhotoUpload: React.FC = () => {
     };
     reader.onload = (event) => {
       if (typeof event.target?.result === 'string') {
+        console.log('[AdminPhotoUpload] FileReader loaded, starting compression');
         // Стискаємо фото якість (максимум 500x500, якість 0.7)
         const img = new Image();
         img.onerror = () => {
@@ -81,31 +113,38 @@ const AdminPhotoUpload: React.FC = () => {
 
             ctx.drawImage(img, 0, 0, width, height);
             const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+            console.log('[AdminPhotoUpload] Image compressed, size:', compressedImage.length);
 
             const newPhoto = {
               id: Date.now().toString(),
               imageUrl: compressedImage,
-              title: description.trim() || selectedFile.name.replace(/\.[^\/\.]+$/, ''),
+              title: description.trim() || selectedFile.name.replace(/\.[^/.]+$/, ''),
               timestamp: new Date().toISOString(),
             };
 
             try {
               let storedPhotos = JSON.parse(localStorage.getItem('productPhotos_v2') || '[]');
+              console.log('[AdminPhotoUpload] Current photos count:', storedPhotos.length);
               
               // Лімітуємо: максимум 10 фото
               if (storedPhotos.length >= 10) {
+                console.log('[AdminPhotoUpload] Removing oldest photo (limit reached)');
                 storedPhotos = storedPhotos.slice(0, 9); // Видаляємо найстарішу
               }
               
               // Check if we have enough space before saving
               const testString = JSON.stringify([...storedPhotos, newPhoto]);
+              console.log('[AdminPhotoUpload] Testing quota, data size:', testString.length);
               try {
                 const testKey = 'quota_test_' + Date.now();
                 localStorage.setItem(testKey, testString);
                 localStorage.removeItem(testKey);
+                console.log('[AdminPhotoUpload] Quota test passed');
               } catch (e) {
+                console.log('[AdminPhotoUpload] Quota test failed:', e);
                 if (e instanceof Error && e.name === 'QuotaExceededError') {
                   // Clear more old photos if still not enough space
+                  console.log('[AdminPhotoUpload] Removing 3 more photos due to quota');
                   storedPhotos = storedPhotos.slice(0, Math.max(0, storedPhotos.length - 3));
                 } else {
                   throw e;
@@ -114,7 +153,9 @@ const AdminPhotoUpload: React.FC = () => {
               
               storedPhotos.unshift(newPhoto);
               const finalData = JSON.stringify(storedPhotos);
+              console.log('[AdminPhotoUpload] Saving to localStorage_v2, total size:', finalData.length);
               localStorage.setItem('productPhotos_v2', finalData);
+              console.log('[AdminPhotoUpload] Successfully saved, total photos:', storedPhotos.length);
 
               // Show success
               setTimeout(() => {
@@ -126,11 +167,13 @@ const AdminPhotoUpload: React.FC = () => {
                 }, 2000);
               }, 800);
             } catch (storageError) {
+              console.error('[AdminPhotoUpload] Storage error:', storageError);
               if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
                 setError('Помилка: Недостатньо місця. Видаліть старі фото.');
               } else {
                 setError('Помилка при збереженні фото');
               }
+              console.error('Storage error:', storageError);
             }
           } catch (e) {
             setError('Помилка при обробці фото');
@@ -183,14 +226,29 @@ const AdminPhotoUpload: React.FC = () => {
           <div className="relative group">
              {!previewUrl ? (
                 <div 
+                  ref={dragRef}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-4 border-dashed border-stone-200 rounded-2xl h-72 flex flex-col items-center justify-center cursor-pointer hover:border-dream-cyan hover:bg-cyan-50/50 transition-all duration-300 relative overflow-hidden"
+                  className={`border-4 border-dashed rounded-2xl h-72 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden ${
+                    isDragActive 
+                      ? 'border-dream-cyan bg-cyan-50 shadow-lg shadow-dream-cyan/30' 
+                      : 'border-stone-200 hover:border-dream-cyan hover:bg-cyan-50/50'
+                  }`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-tr from-dream-cyan/5 to-dream-pink/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all z-10">
-                      <ImageIcon className="text-stone-300 group-hover:text-dream-cyan" size={40} />
+                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all z-10 ${
+                    isDragActive 
+                      ? 'bg-dream-cyan/20 shadow-lg' 
+                      : 'bg-white'
+                  }`}>
+                      <ImageIcon className={`group-hover:scale-125 transition-all z-10 ${isDragActive ? 'text-dream-cyan scale-125' : 'text-stone-300 group-hover:text-dream-cyan'}`} size={40} />
                   </div>
-                  <p className="text-stone-700 font-bold text-lg z-10">Завантажити фото твого виробу</p>
+                  <p className={`font-bold text-lg z-10 ${isDragActive ? 'text-dream-cyan' : 'text-stone-700'}`}>
+                    {isDragActive ? 'Кидай фото сюди!' : 'Завантажити фото твого виробу'}
+                  </p>
                   <p className="text-sm text-stone-400 mt-1 z-10">JPG, PNG до 10MB</p>
                 </div>
              ) : (

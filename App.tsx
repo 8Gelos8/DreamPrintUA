@@ -9,6 +9,20 @@ import Admin from './pages/Admin';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
+  
+  React.useEffect(() => {
+    const buildTime = '2026-02-11T' + Math.random().toString(36).slice(2);
+    console.log('[App v8f7d825] Rendering - current location:', {
+      pathname: location.pathname,
+      hash: location.hash,
+      buildTime,
+      hasProductPhotos_v2: !!localStorage.getItem('productPhotos_v2'),
+      hasProductPhotos_old: !!localStorage.getItem('productPhotos'),
+      hasAdminAuth: !!localStorage.getItem('adminAuth'),
+      keys: Object.keys(localStorage),
+      timestamp: new Date().toISOString()
+    });
+  }, [location]);
 
   return (
     <Layout>
