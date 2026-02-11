@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Tag } from 'lucide-react';
 import { useContent } from '../contexts/ContentContext';
@@ -6,10 +6,18 @@ import { PRODUCTS } from '../constants';
 
 const Products: React.FC = () => {
   const { content } = useContent();
-  const products = content.products && content.products.length > 0 ? content.products : PRODUCTS;
+  const [displayProducts, setDisplayProducts] = useState(PRODUCTS);
   const [filter, setFilter] = useState<'all' | 'printing' | 'handmade' | 'souvenir'>('all');
 
-  const filteredProducts = products.filter(
+  useEffect(() => {
+    if (content.products && content.products.length > 0) {
+      setDisplayProducts(content.products);
+    } else {
+      setDisplayProducts(PRODUCTS);
+    }
+  }, [content.products]);
+
+  const filteredProducts = displayProducts.filter(
     (product) => filter === 'all' || product.category === filter
   );
 

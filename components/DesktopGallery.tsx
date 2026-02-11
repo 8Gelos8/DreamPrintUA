@@ -116,6 +116,7 @@ const DesktopGallery: React.FC = () => {
     const stored = localStorage.getItem('productPhotos_v2') || '[]';
     try {
       const photos = JSON.parse(stored);
+      console.log('[DesktopGallery] Loaded photos from storage:', photos.length, photos);
       // Процесуємо фото щоб додати позиціонування та ротацію
       const processedPhotos = photos.map((photo: any) => {
         const seed = photo.id.charCodeAt(0);
@@ -127,6 +128,7 @@ const DesktopGallery: React.FC = () => {
           zIndex: photo.zIndex ?? 1,
         };
       });
+      console.log('[DesktopGallery] Processed photos:', processedPhotos);
       setUserPhotos(processedPhotos);
     } catch (e) {
       console.error('Failed to parse user photos', e);
@@ -141,6 +143,15 @@ const DesktopGallery: React.FC = () => {
 
   // Combine user photos and default items
   const allItems = [...userPhotos, ...items];
+  
+  React.useEffect(() => {
+    console.log('[DesktopGallery] allItems updated:', {
+      userPhotos: userPhotos.length,
+      items: items.length,
+      total: allItems.length,
+      allItems
+    });
+  }, [allItems, userPhotos, items]);
 
   const selectedItem = allItems.find(item => item.id === selectedId);
 
