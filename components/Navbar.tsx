@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
             {/* Logo Image */}
             <div className="relative h-16 w-auto transition-transform duration-300 group-hover:scale-105">
                 <img src="./logo.svg" alt="Dream Print UA" className="h-full w-auto object-contain drop-shadow-md" onError={(e) => {
-                    // Fallback if logo.svg is missing
+                    // Fallback if logo.png is missing
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.parentElement!.innerHTML = '<span class="font-display font-black text-2xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-dream-cyan via-dream-yellow to-dream-pink drop-shadow-sm">DreamPrint<span class="text-dream-purple">UA</span></span>';
                 }} />
