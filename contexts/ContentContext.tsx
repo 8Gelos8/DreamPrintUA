@@ -38,7 +38,14 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         throw new Error('GitHub не налаштований. Перейдіть до GitHub Config.');
       }
 
-      await syncContentToGitHub(content, config.token, config.username, config.repo);
+      // Додаємо фото з localStorage до контенту перед синхронізацією
+      const photos = JSON.parse(localStorage.getItem('productPhotos_v2') || '[]');
+      const contentWithPhotos = {
+        ...content,
+        photos: photos,
+      };
+
+      await syncContentToGitHub(contentWithPhotos, config.token, config.username, config.repo);
     } catch (error) {
       setSyncError(error instanceof Error ? error.message : 'Помилка синхронізації');
     } finally {

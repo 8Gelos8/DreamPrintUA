@@ -1,10 +1,32 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArrowRight, Star, Heart, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import DesktopGallery from '../components/DesktopGallery';
 import FileUpload from '../components/FileUpload';
+import { useContent } from '../contexts/ContentContext';
 
 const Home: React.FC = () => {
+  const { content } = useContent();
+
+  // Синхронізуємо фото з GitHub контенту при завантаженні
+  useEffect(() => {
+    if (content.photos && content.photos.length > 0) {
+      const localPhotos = JSON.parse(localStorage.getItem('productPhotos_v2') || '[]');
+      const githubPhotos = content.photos;
+      
+      // Об'єднуємо: GitHub фото + локальні (локальні мають пріоритет)
+      const mergedPhotos = [
+        ...localPhotos,
+        ...githubPhotos.filter(gp => !localPhotos.some(lp => lp.id === gp.id))
+      ];
+      
+      if (mergedPhotos.length > 0) {
+        localStorage.setItem('productPhotos_v2', JSON.stringify(mergedPhotos));
+        window.dispatchEvent(new Event('photosUpdated'));
+      }
+    }
+  }, [content.photos]);
+
   return (
     <div className="space-y-20 pb-16 overflow-hidden">
       

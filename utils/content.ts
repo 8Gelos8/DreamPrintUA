@@ -1,4 +1,4 @@
-import { Product, PriceItem } from '../types';
+import { Product, PriceItem, GalleryItem } from '../types';
 
 export interface ContentData {
   homeTitle: string;
@@ -6,6 +6,7 @@ export interface ContentData {
   aboutText: string;
   products: Product[];
   prices: PriceItem[];
+  photos: GalleryItem[];
 }
 
 const DEFAULT_CONTENT: ContentData = {
@@ -14,6 +15,7 @@ const DEFAULT_CONTENT: ContentData = {
   aboutText: 'Ми спеціалізуємося на персоналізованому друці та handmade виробах',
   products: [],
   prices: [],
+  photos: [],
 };
 
 export const saveContent = (content: ContentData) => {
