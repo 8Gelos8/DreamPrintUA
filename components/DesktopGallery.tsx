@@ -53,8 +53,10 @@ const DesktopGallery: React.FC = () => {
       while (!placed && attempts < MAX_ATTEMPTS) {
         // Random position within bounds
         const randomSeed = seed + attempts * 17;
-        const x = (randomSeed * 31) % (containerWidth - width - PADDING * 2) + PADDING;
-        const y = (randomSeed * 43) % (containerHeight - height - PADDING * 2) + PADDING;
+        const maxX = Math.max(PADDING, containerWidth - width - PADDING);
+        const maxY = Math.max(PADDING, containerHeight - height - PADDING);
+        const x = PADDING + Math.abs(randomSeed * 31) % Math.max(1, maxX - PADDING);
+        const y = PADDING + Math.abs(randomSeed * 43) % Math.max(1, maxY - PADDING);
         const rotation = ((randomSeed * 13) % 30) - 15;
 
         // Check collision with existing items
@@ -99,8 +101,10 @@ const DesktopGallery: React.FC = () => {
       // If couldn't find spot with low overlap, place anyway (stacking allowed when space full)
       if (!placed) {
         const randomSeed = seed + MAX_ATTEMPTS * 17;
-        const x = (randomSeed * 31) % (containerWidth - width);
-        const y = (randomSeed * 43) % (containerHeight - height);
+        const maxX = Math.max(PADDING, containerWidth - width - PADDING);
+        const maxY = Math.max(PADDING, containerHeight - height - PADDING);
+        const x = PADDING + Math.abs(randomSeed * 31) % Math.max(1, maxX - PADDING);
+        const y = PADDING + Math.abs(randomSeed * 43) % Math.max(1, maxY - PADDING);
         const rotation = ((randomSeed * 13) % 30) - 15;
 
         positioned.push({
