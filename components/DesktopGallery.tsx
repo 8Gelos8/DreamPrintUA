@@ -191,7 +191,6 @@ const DesktopGallery: React.FC = () => {
     <div 
       ref={containerRef}
       className="relative w-full h-[600px] md:h-[700px] overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl shadow-inner border-4 border-white perspective-1000"
-      style={{ transform: 'translateZ(0)' }}
     >
       {/* Desk texture */}
       <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
@@ -237,7 +236,7 @@ const DesktopGallery: React.FC = () => {
             animate={
               isHovered
                 ? {
-                    scale: 1.3,
+                    scale: 1.1,
                     zIndex: 50,
                     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
                   }
@@ -248,20 +247,18 @@ const DesktopGallery: React.FC = () => {
                   }
             }
             transition={{
-              duration: 0.3,
+              duration: 0.2,
               type: 'spring',
-              stiffness: 300,
-              damping: 30,
+              stiffness: 400,
+              damping: 40,
             }}
-            className={`absolute cursor-pointer bg-white rounded-lg overflow-hidden ${borderColor} border-b-4 hover:shadow-2xl transition-all`}
+            className={`absolute cursor-pointer bg-white rounded-lg overflow-hidden ${borderColor} border-b-4`}
             style={{
-              left: `${item.x}px`,
-              top: `${item.y}px`,
+              transform: `translate(${item.x}px, ${item.y}px)`,
               width: item.width,
               height: item.height,
               rotate: isHovered ? 0 : item.rotation,
-              willChange: 'transform',
-              transform: 'translateZ(0)',
+              transformOrigin: 'center center',
             }}
           >
             {/* Tape effect */}
