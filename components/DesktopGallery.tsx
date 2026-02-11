@@ -179,37 +179,32 @@ const DesktopGallery: React.FC = () => {
          </div>
       </div>
 
-      {/* Scattered Photos */}
-      {allItems.map((item, index) => {
-        const borderColor = COLORS[index % COLORS.length];
-        const isUserPhoto = userPhotos.some(p => p.id === item.id);
-        return (
-          <motion.div
-            key={item.id}
-            layoutId={`card-${item.id}`}
-            onClick={() => setSelectedId(item.id)}
-            className={`absolute cursor-pointer shadow-lg hover:shadow-2xl transition-shadow bg-white p-2 md:p-3 pb-8 md:pb-12 border-b-4 ${borderColor} group`}
-            initial={{ 
-              opacity: 0,
-              scale: 0.5,
-              top: '50%', 
-              left: '50%'
-            }}
-            animate={{
-               opacity: 1,
-               scale: 1,
-               rotate: item.rotation,
-               top: item.top,
-               left: item.left,
-               zIndex: item.zIndex,
-            }}
-            whileHover={{ scale: 1.1, zIndex: 50, rotate: 0 }}
-            transition={{ duration: 0.6, type: "spring" }}
-            style={{
-              maxWidth: '220px',
-              transformOrigin: 'center center'
-            }}
-          >
+      {/* Scattered Photos with Scrollable Container */}
+      <div className="absolute inset-0 overflow-x-auto overflow-y-hidden scroll-smooth">
+        <div className="flex gap-6 p-8 min-w-max h-full items-center">
+          {allItems.map((item, index) => {
+            const borderColor = COLORS[index % COLORS.length];
+            const isUserPhoto = userPhotos.some(p => p.id === item.id);
+            return (
+              <motion.div
+                key={item.id}
+                layoutId={`card-${item.id}`}
+                onClick={() => setSelectedId(item.id)}
+                className={`flex-shrink-0 cursor-pointer shadow-lg hover:shadow-2xl transition-shadow bg-white p-2 md:p-3 pb-8 md:pb-12 border-b-4 ${borderColor} group`}
+                style={{
+                  maxWidth: '220px',
+                }}
+                initial={{ 
+                  opacity: 0,
+                  scale: 0.8,
+                }}
+                animate={{
+                   opacity: 1,
+                   scale: 1,
+                }}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3, type: "spring" }}
+              >
               {/* Tape effect */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-12 bg-white/40 backdrop-blur-sm shadow-sm rotate-3 border-l border-r border-white/50"></div>
 
@@ -235,9 +230,11 @@ const DesktopGallery: React.FC = () => {
               <div className="font-handwriting text-center text-sm md:text-base text-stone-700 font-bold font-display line-clamp-2 capitalize break-words">
                   {item.title}
               </div>
-          </motion.div>
-        );
-      })}
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Modal View */}
       <AnimatePresence>

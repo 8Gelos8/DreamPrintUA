@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Tag, Edit2, Save, X, Trash2, Plus } from 'lucide-react';
+import { Tag, Edit2, Save, X, Trash2, Plus, Upload } from 'lucide-react';
 import { useContent } from '../contexts/ContentContext';
 import { useAdmin } from '../contexts/AdminContext';
 import { PRODUCTS } from '../constants';
@@ -17,6 +17,8 @@ const Products: React.FC = () => {
     category: 'printing',
     imageUrl: ''
   });
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (content.products && content.products.length > 0) {
@@ -71,7 +73,62 @@ const Products: React.FC = () => {
     };
     updateContent({ products: [...displayProducts, newProduct] });
     setEditForm({ title: '', description: '', category: 'printing', imageUrl: '' });
+    setPreviewImage(null);
     setEditingId(null);
+  };
+
+  const compressImage = async (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxSize = 500;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxSize) {
+              height = Math.round((height * maxSize) / width);
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width = Math.round((width * maxSize) / height);
+              height = maxSize;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Будь ласка, виберіть зображення');
+      return;
+    }
+    const compressed = await compressImage(file);
+    setEditForm({ ...editForm, imageUrl: compressed });
+    setPreviewImage(compressed);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handleImageUpload(file);
+    }
   };
 
   return (
@@ -135,13 +192,43 @@ const Products: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold mb-2">URL Картинки</label>
-              <input
-                type="text"
-                value={editForm.imageUrl}
-                onChange={(e) => setEditForm({...editForm, imageUrl: e.target.value})}
-                className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg focus:outline-none focus:border-dream-cyan"
-              />
+              <label className="block text-sm font-bold mb-2">Завантажити Картинку</label>
+              <div
+                onDragEnter={() => setIsDragging(true)}
+                onDragLeave={() => setIsDragging(false)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  isDragging
+                    ? 'border-dream-cyan bg-cyan-50'
+                    : 'border-stone-200 bg-stone-50'
+                }`}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      handleImageUpload(e.target.files[0]);
+                    }
+                  }}
+                  className="hidden"
+                  id="product-image-upload"
+                />
+                <label htmlFor="product-image-upload" className="cursor-pointer">
+                  <div className="flex flex-col items-center gap-2">
+                    <Upload size={32} className="text-dream-cyan" />
+                    <p className="font-bold text-stone-700">Перетягніть картинку сюди</p>
+                    <p className="text-sm text-stone-500">або клікніть для вибору</p>
+                  </div>
+                </label>
+              </div>
+              {previewImage && (
+                <div className="mt-4">
+                  <p className="text-sm font-bold mb-2">Попередній перегляд:</p>
+                  <img src={previewImage} alt="Preview" className="max-w-xs h-auto rounded-lg border-2 border-dream-cyan" />
+                </div>
+              )}
             </div>
             <div className="flex gap-3 pt-4">
               <button

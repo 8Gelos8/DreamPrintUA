@@ -57,7 +57,7 @@ const Prices: React.FC = () => {
             Чесні ціни на магію. Обирайте послугу, а ми зробимо все інше.
           </p>
         </div>
-        {isAdmin && editingIndex !== null && editingIndex !== -1 && (
+        {isAdmin && editingIndex !== -1 && (
           <button
             onClick={() => {
               setEditingIndex(-1);
