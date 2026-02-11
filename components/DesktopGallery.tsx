@@ -236,12 +236,10 @@ const DesktopGallery: React.FC = () => {
             animate={
               isHovered
                 ? {
-                    scale: 1.1,
                     zIndex: 50,
                     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
                   }
                 : {
-                    scale: 1,
                     zIndex: 1,
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                   }
@@ -254,11 +252,11 @@ const DesktopGallery: React.FC = () => {
             }}
             className={`absolute cursor-pointer bg-white rounded-lg overflow-hidden ${borderColor} border-b-4`}
             style={{
-              transform: `translate(${item.x}px, ${item.y}px)`,
+              left: item.x,
+              top: item.y,
               width: item.width,
               height: item.height,
               rotate: isHovered ? 0 : item.rotation,
-              transformOrigin: 'center center',
             }}
           >
             {/* Tape effect */}
