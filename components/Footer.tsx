@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="w-32 mb-4">
-               <img src="./logo.png" alt="Dream Print UA" className="w-full h-auto opacity-90" onError={(e) => e.currentTarget.style.display = 'none'} />
+               <img src="./logo.svg" alt="Dream Print UA" className="w-full h-auto opacity-90" onError={(e) => e.currentTarget.style.display = 'none'} />
             </div>
             <h3 className="font-display font-bold text-white text-lg mb-2">Dream Print UA</h3>
             <p className="text-sm text-stone-400 max-w-xs">

@@ -50,7 +50,7 @@ const Home: React.FC = () => {
            {/* Main Logo Placement */}
            <div className="w-64 md:w-80 mb-6 transition-transform hover:scale-105 duration-500">
               <img 
-                src="./logo.png" 
+                src="./logo.svg" 
                 alt="Dream Print UA Logo" 
                 className="w-full h-auto drop-shadow-xl"
                 onError={(e) => e.currentTarget.style.display = 'none'}
