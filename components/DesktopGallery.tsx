@@ -28,6 +28,7 @@ const DesktopGallery: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [userPhotos, setUserPhotos] = useState<GalleryItem[]>([]);
   const [positionedItems, setPositionedItems] = useState<PositionedItem[]>([]);
+  const [requiredHeight, setRequiredHeight] = useState(700);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Generate random positions with collision detection
@@ -171,36 +172,37 @@ const DesktopGallery: React.FC = () => {
   const allItems = [...userPhotos, ...items];
   const selectedItem = allItems.find(item => item.id === selectedId);
 
-  // Calculate dynamic height based on number of items
-  const estimatedHeight = allItems.length > 0 
-    ? Math.max(700, Math.ceil(allItems.length / 3) * 300)
-    : 700;
-
   // Generate positions on mount and when items change
   useEffect(() => {
     if (containerRef.current && allItems.length > 0) {
       const rect = containerRef.current.getBoundingClientRect();
       // Use container dimensions or fallback to defaults
       const width = rect.width > 0 ? rect.width : 1200;
-      const height = estimatedHeight;
+      const height = rect.height > 0 ? rect.height : 700;
       const positioned = generatePositions(allItems, width, height);
       setPositionedItems(positioned);
+
+      // Calculate required height based on positioned items
+      let maxBottom = 700;
+      positioned.forEach(item => {
+        const bottom = item.y + item.height + 40; // 40px padding at bottom
+        if (bottom > maxBottom) {
+          maxBottom = bottom;
+        }
+      });
+      setRequiredHeight(maxBottom);
     }
-  }, [allItems, generatePositions, estimatedHeight]);
+  }, [allItems, generatePositions]);
 
   const handleCardHover = (id: string | null) => {
     setHoveredId(id);
   };
 
-  const estimatedHeight = allItems.length > 0 
-    ? Math.max(700, Math.ceil(allItems.length / 3) * 300)
-    : 700;
-
   return (
     <div 
       ref={containerRef}
-      className="relative w-full overflow-y-auto bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl shadow-inner border-4 border-white perspective-1000"
-      style={{ minHeight: estimatedHeight, height: estimatedHeight }}
+      className="relative w-full bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl shadow-inner border-4 border-white perspective-1000 overflow-y-auto"
+      style={{ minHeight: '700px', height: `${requiredHeight}px` }}
     >
       {/* Desk texture */}
       <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
