@@ -4,7 +4,7 @@ import App from './App';
 import { AdminProvider } from './contexts/AdminContext';
 import { ContentProvider } from './contexts/ContentContext';
 
-console.log('[index.tsx v5e61dd0] React app initializing');
+console.log('[index.tsx v8f7d825] React app initializing - ' + new Date().toISOString());
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -22,4 +22,4 @@ root.render(
     </AdminProvider>
   </React.StrictMode>
 );
-console.log('[index.tsx] React root rendered');
+console.log('[index.tsx v8f7d825] React root rendered');

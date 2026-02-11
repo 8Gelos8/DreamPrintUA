@@ -40,7 +40,7 @@ const AdminPhotoUpload: React.FC = () => {
     e.preventDefault();
     if (!selectedFile || !previewUrl) return;
 
-    console.log('[AdminPhotoUpload v5e61dd0] Starting upload:', {
+    console.log('[AdminPhotoUpload v8f7d825] Starting upload:', {
       fileName: selectedFile.name,
       fileSize: selectedFile.size,
       timestamp: new Date().toISOString()
