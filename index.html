@@ -14,8 +14,25 @@
     <!-- Fallback: Tailwind CDN for development/backup -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      // Disable Tailwind animations for production
+      // Configure Tailwind for CDN with custom colors
       tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'dream-cyan': '#00C2FF',
+              'dream-yellow': '#FFD600',
+              'dream-orange': '#FF9900',
+              'dream-pink': '#FF3399',
+              'dream-green': '#33CC33',
+              'dream-purple': '#9933FF',
+              'dream-blue': '#3366FF',
+            },
+            fontFamily: {
+              display: ['Comfortaa', 'cursive'],
+              handwriting: ['Indie Flower', 'cursive'],
+            }
+          }
+        },
         corePlugins: {
           preflight: false,
         }
