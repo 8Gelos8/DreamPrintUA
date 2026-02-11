@@ -1,12 +1,17 @@
-import React, { useEffect } from 'react';
-import { ArrowRight, Star, Heart, Sparkles } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowRight, Star, Heart, Sparkles, Edit2, Save, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import DesktopGallery from '../components/DesktopGallery';
 import FileUpload from '../components/FileUpload';
 import { useContent } from '../contexts/ContentContext';
+import { useAdmin } from '../contexts/AdminContext';
 
 const Home: React.FC = () => {
-  const { content } = useContent();
+  const { content, updateContent, syncToGitHub, isSyncing } = useContent();
+  const { isAdmin } = useAdmin();
+  const [editMode, setEditMode] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(content.homeTitle);
+  const [editedDesc, setEditedDesc] = useState(content.homeDescription);
 
   // Синхронізуємо фото з GitHub контенту при завантаженні
   useEffect(() => {
@@ -52,16 +57,76 @@ const Home: React.FC = () => {
               />
            </div>
 
-           <h1 className="text-5xl md:text-7xl font-display font-black text-stone-800 leading-tight mb-8 drop-shadow-sm">
-             Зроби Свій Світ <br />
-             <span className="text-transparent bg-clip-text bg-gradient-to-r from-dream-pink via-dream-purple to-dream-cyan">
-               Яскравим
-             </span>
-           </h1>
-           <p className="max-w-2xl mx-auto text-xl text-stone-600 font-medium">
-             Сублімаційний друк, кастомні подарунки та декор. <br/>
-             Втілюємо найсміливіші ідеї в реальність!
-           </p>
+           {/* Edit Mode - Title & Description */}
+           {editMode ? (
+             <div className="space-y-4 mb-8 relative z-10 max-w-4xl mx-auto">
+               <div>
+                 <label className="block text-sm font-bold text-stone-700 mb-2">Заголовок</label>
+                 <input
+                   type="text"
+                   value={editedTitle}
+                   onChange={(e) => setEditedTitle(e.target.value)}
+                   className="w-full px-4 py-3 border-2 border-dream-cyan rounded-lg font-display text-lg focus:outline-none focus:border-dream-pink"
+                 />
+               </div>
+               <div>
+                 <label className="block text-sm font-bold text-stone-700 mb-2">Опис</label>
+                 <textarea
+                   value={editedDesc}
+                   onChange={(e) => setEditedDesc(e.target.value)}
+                   rows={3}
+                   className="w-full px-4 py-3 border-2 border-dream-cyan rounded-lg focus:outline-none focus:border-dream-pink"
+                 />
+               </div>
+               <div className="flex gap-3 justify-center">
+                 <button
+                   onClick={() => {
+                     updateContent({
+                       homeTitle: editedTitle,
+                       homeDescription: editedDesc
+                     });
+                     setEditMode(false);
+                   }}
+                   className="px-6 py-3 bg-dream-green text-white rounded-lg font-bold hover:shadow-lg transition-all flex items-center gap-2"
+                 >
+                   <Save size={18} /> Зберегти
+                 </button>
+                 <button
+                   onClick={() => {
+                     setEditedTitle(content.homeTitle);
+                     setEditedDesc(content.homeDescription);
+                     setEditMode(false);
+                   }}
+                   className="px-6 py-3 bg-stone-400 text-white rounded-lg font-bold hover:shadow-lg transition-all flex items-center gap-2"
+                 >
+                   <X size={18} /> Скасувати
+                 </button>
+               </div>
+             </div>
+           ) : (
+             <>
+               <div className="flex items-center justify-center gap-4 mb-8 relative z-10">
+                 <h1 className="text-5xl md:text-7xl font-display font-black text-stone-800 leading-tight drop-shadow-sm">
+                   Зроби Свій Світ <br />
+                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-dream-pink via-dream-purple to-dream-cyan">
+                     Яскравим
+                   </span>
+                 </h1>
+                 {isAdmin && (
+                   <button
+                     onClick={() => setEditMode(true)}
+                     className="p-3 bg-dream-blue text-white rounded-full hover:shadow-lg hover:shadow-dream-blue/40 transition-all mt-4"
+                     title="Редагувати заголовок"
+                   >
+                     <Edit2 size={24} />
+                   </button>
+                 )}
+               </div>
+               <p className="max-w-2xl mx-auto text-xl text-stone-600 font-medium">
+                 {editedDesc} <br/>
+               </p>
+             </>
+           )}
            
            <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
              <Link to="/products" className="px-8 py-4 bg-gradient-to-r from-dream-pink to-dream-purple text-white rounded-full font-bold hover:shadow-lg hover:shadow-dream-pink/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 text-lg">

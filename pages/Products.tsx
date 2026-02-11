@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Tag } from 'lucide-react';
+import { Tag, Edit2, Save, X, Trash2, Plus } from 'lucide-react';
 import { useContent } from '../contexts/ContentContext';
+import { useAdmin } from '../contexts/AdminContext';
 import { PRODUCTS } from '../constants';
 
 const Products: React.FC = () => {
-  const { content } = useContent();
+  const { content, updateContent } = useContent();
+  const { isAdmin } = useAdmin();
   const [displayProducts, setDisplayProducts] = useState(PRODUCTS);
   const [filter, setFilter] = useState<'all' | 'printing' | 'handmade' | 'souvenir'>('all');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    category: 'printing',
+    imageUrl: ''
+  });
 
   useEffect(() => {
     if (content.products && content.products.length > 0) {
@@ -30,16 +39,127 @@ const Products: React.FC = () => {
       }
   }
 
+  const handleEdit = (product: any) => {
+    setEditingId(product.id);
+    setEditForm({
+      title: product.title,
+      description: product.description,
+      category: product.category,
+      imageUrl: product.imageUrl
+    });
+  };
+
+  const handleSave = (productId: string) => {
+    const updatedProducts = displayProducts.map(p =>
+      p.id === productId
+        ? { ...p, ...editForm }
+        : p
+    );
+    updateContent({ products: updatedProducts });
+    setEditingId(null);
+  };
+
+  const handleDelete = (productId: string) => {
+    const updatedProducts = displayProducts.filter(p => p.id !== productId);
+    updateContent({ products: updatedProducts });
+  };
+
+  const handleAddProduct = () => {
+    const newProduct = {
+      id: Date.now().toString(),
+      ...editForm
+    };
+    updateContent({ products: [...displayProducts, newProduct] });
+    setEditForm({ title: '', description: '', category: 'printing', imageUrl: '' });
+    setEditingId(null);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-16">
-        <h1 className="text-5xl font-display font-black text-stone-800 mb-6">
-            Наша <span className="text-dream-purple">Продукція</span>
-        </h1>
-        <p className="text-stone-500 max-w-2xl mx-auto text-lg">
-          Обирайте серцем! Від персоналізованого одягу до затишного декору для дому.
-        </p>
+      <div className="text-center mb-16 flex items-center justify-center gap-4">
+        <div>
+          <h1 className="text-5xl font-display font-black text-stone-800 mb-6">
+              Наша <span className="text-dream-purple">Продукція</span>
+          </h1>
+          <p className="text-stone-500 max-w-2xl mx-auto text-lg">
+            Обирайте серцем! Від персоналізованого одягу до затишного декору для дому.
+          </p>
+        </div>
+        {isAdmin && editingId !== 'new' && (
+          <button
+            onClick={() => {
+              setEditingId('new');
+              setEditForm({ title: '', description: '', category: 'printing', imageUrl: '' });
+            }}
+            className="p-3 bg-dream-green text-white rounded-full hover:shadow-lg transition-all h-fit"
+            title="Додати новий товар"
+          >
+            <Plus size={28} />
+          </button>
+        )}
       </div>
+
+      {/* Add/Edit Product Form */}
+      {isAdmin && editingId === 'new' && (
+        <div className="mb-16 bg-white p-8 rounded-3xl border-2 border-dream-green shadow-lg">
+          <h3 className="text-2xl font-bold mb-6">Додати новий товар</h3>
+          <div className="space-y-4 max-w-2xl">
+            <div>
+              <label className="block text-sm font-bold mb-2">Назва</label>
+              <input
+                type="text"
+                value={editForm.title}
+                onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg focus:outline-none focus:border-dream-cyan"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2">Опис</label>
+              <textarea
+                value={editForm.description}
+                onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                rows={3}
+                className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg focus:outline-none focus:border-dream-cyan"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2">Категорія</label>
+              <select
+                value={editForm.category}
+                onChange={(e) => setEditForm({...editForm, category: e.target.value})}
+                className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg focus:outline-none focus:border-dream-cyan"
+              >
+                <option value="printing">Друк</option>
+                <option value="handmade">Handmade</option>
+                <option value="souvenir">Сувенір</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2">URL Картинки</label>
+              <input
+                type="text"
+                value={editForm.imageUrl}
+                onChange={(e) => setEditForm({...editForm, imageUrl: e.target.value})}
+                className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg focus:outline-none focus:border-dream-cyan"
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={handleAddProduct}
+                className="px-6 py-3 bg-dream-green text-white rounded-lg font-bold hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <Save size={18} /> Додати
+              </button>
+              <button
+                onClick={() => setEditingId(null)}
+                className="px-6 py-3 bg-stone-400 text-white rounded-lg font-bold hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <X size={18} /> Скасувати
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filter Tabs */}
       <div className="flex flex-wrap justify-center gap-4 mb-16">
@@ -74,27 +194,98 @@ const Products: React.FC = () => {
             key={product.id}
             className="group bg-white rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-dream-purple/10 transition-all duration-300 border border-stone-100 flex flex-col"
           >
-            <div className="aspect-[4/3] overflow-hidden bg-stone-100 relative">
-              <img
-                src={product.imageUrl}
-                alt={product.title}
-                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-              />
-              <div className="absolute top-4 left-4">
-                  <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border ${getCategoryColor(product.category)}`}>
-                      {product.category}
-                  </span>
+            {editingId === product.id ? (
+              // Edit Mode
+              <div className="p-8 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold mb-2">Назва</label>
+                  <input
+                    type="text"
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                    className="w-full px-3 py-2 border-2 border-dream-cyan rounded-lg focus:outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold mb-2">Опис</label>
+                  <textarea
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                    rows={2}
+                    className="w-full px-3 py-2 border-2 border-dream-cyan rounded-lg focus:outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold mb-2">Категорія</label>
+                  <select
+                    value={editForm.category}
+                    onChange={(e) => setEditForm({...editForm, category: e.target.value})}
+                    className="w-full px-3 py-2 border-2 border-dream-cyan rounded-lg focus:outline-none text-sm"
+                  >
+                    <option value="printing">Друк</option>
+                    <option value="handmade">Handmade</option>
+                    <option value="souvenir">Сувенір</option>
+                  </select>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleSave(product.id)}
+                    className="flex-1 px-3 py-2 bg-dream-green text-white rounded-lg font-bold hover:shadow-lg transition-all flex items-center justify-center gap-1 text-sm"
+                  >
+                    <Save size={16} /> Зберегти
+                  </button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="flex-1 px-3 py-2 bg-stone-400 text-white rounded-lg font-bold hover:shadow-lg transition-all flex items-center justify-center gap-1 text-sm"
+                  >
+                    <X size={16} /> Скасувати
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="p-8 flex flex-col flex-grow">
-              <h3 className="text-2xl font-bold text-stone-800 mb-3 font-display leading-tight">{product.title}</h3>
-              <p className="text-stone-500 text-sm leading-relaxed mb-6 flex-grow">
-                {product.description}
-              </p>
-              <button className="w-full py-3 rounded-xl bg-stone-50 text-stone-800 font-bold hover:bg-gradient-to-r hover:from-dream-cyan hover:to-dream-blue hover:text-white transition-all duration-300 border border-stone-200 hover:border-transparent group-hover:shadow-md">
-                Детальніше
-              </button>
-            </div>
+            ) : (
+              // Display Mode
+              <>
+                <div className="aspect-[4/3] overflow-hidden bg-stone-100 relative">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute top-4 left-4">
+                      <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border ${getCategoryColor(product.category)}`}>
+                          {product.category}
+                      </span>
+                  </div>
+                  {isAdmin && (
+                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="p-2 bg-dream-blue text-white rounded-full hover:shadow-lg transition-all"
+                        title="Редагувати"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="p-2 bg-red-500 text-white rounded-full hover:shadow-lg transition-all"
+                        title="Видалити"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="p-8 flex flex-col flex-grow">
+                  <h3 className="text-2xl font-bold text-stone-800 mb-3 font-display leading-tight">{product.title}</h3>
+                  <p className="text-stone-500 text-sm leading-relaxed mb-6 flex-grow">
+                    {product.description}
+                  </p>
+                  <button className="w-full py-3 rounded-xl bg-stone-50 text-stone-800 font-bold hover:bg-gradient-to-r hover:from-dream-cyan hover:to-dream-blue hover:text-white transition-all duration-300 border border-stone-200 hover:border-transparent group-hover:shadow-md">
+                    Детальніше
+                  </button>
+                </div>
+              </>
+            )}
           </motion.div>
         ))}
       </div>
