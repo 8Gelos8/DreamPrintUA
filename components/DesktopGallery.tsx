@@ -157,30 +157,43 @@ const DesktopGallery: React.FC = () => {
     const stored = localStorage.getItem('productPhotos_v2') || '[]';
     try {
       const photos = JSON.parse(stored);
+      console.log('[DesktopGallery] Loaded photos from localStorage:', photos.length);
       setUserPhotos(photos);
     } catch (e) {
-      console.error('Failed to parse user photos', e);
+      console.error('[DesktopGallery] Failed to parse user photos', e);
     }
 
     // Also try to load from GitHub siteContent for multi-device sync
     const loadFromGitHubContent = async () => {
       try {
         const config = GITHUB_CONFIG;
-        if (config.username === 'YOUR_GITHUB_USERNAME') return;
+        console.log('[DesktopGallery] GitHub config:', { username: config.username, repo: config.repo });
+        
+        if (config.username === 'YOUR_GITHUB_USERNAME') {
+          console.log('[DesktopGallery] GitHub not configured, skipping GitHub load');
+          return;
+        }
 
         const contentUrl = `https://api.github.com/repos/${config.username}/${config.repo}/contents/src/content.json?t=${Date.now()}`;
+        console.log('[DesktopGallery] Fetching content from:', contentUrl);
+        
         const response = await fetch(contentUrl);
+        console.log('[DesktopGallery] GitHub response status:', response.status);
         
         if (response.ok) {
           const data = await response.json();
           const content = JSON.parse(atob(data.content));
+          console.log('[DesktopGallery] GitHub content loaded, photos:', content.photos?.length || 0);
+          
           if (content.photos && Array.isArray(content.photos)) {
-            // Merge with existing photos, but prefer GitHub version
+            console.log('[DesktopGallery] Setting photos from GitHub');
             setUserPhotos(content.photos);
           }
+        } else {
+          console.warn('[DesktopGallery] GitHub fetch failed:', response.status);
         }
       } catch (error) {
-        console.warn('Could not load photos from GitHub content:', error);
+        console.warn('[DesktopGallery] Could not load photos from GitHub content:', error);
       }
     };
 

@@ -36,8 +36,18 @@ export const syncContentToGitHub = async (
   const filePath = 'src/content.json';
   const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${filePath}`;
 
+  console.log('[syncContentToGitHub] Starting sync...');
+  console.log('[syncContentToGitHub] Config:', { username, repo, filePath });
+  console.log('[syncContentToGitHub] Content to sync:', {
+    homeTitle: content.homeTitle,
+    products: content.products.length,
+    prices: content.prices.length,
+    photos: content.photos.length,
+  });
+
   try {
     // Отримуємо SHA
+    console.log('[syncContentToGitHub] Fetching current SHA from:', apiUrl);
     const getResponse = await fetch(apiUrl, {
       headers: {
         Authorization: `token ${token}`,
@@ -45,18 +55,28 @@ export const syncContentToGitHub = async (
       },
     });
 
+    console.log('[syncContentToGitHub] GET response status:', getResponse.status);
+
     let sha: string | null = null;
     if (getResponse.ok) {
       const data = await getResponse.json();
       sha = data.sha;
+      console.log('[syncContentToGitHub] Found existing file, SHA:', sha);
     } else if (getResponse.status !== 404) {
       // Якщо це не 404 (файл не існує), то це помилка
+      const errorText = await getResponse.text();
+      console.error('[syncContentToGitHub] GitHub GET error:', errorText);
       throw new Error(`GitHub API error: ${getResponse.status}`);
+    } else {
+      console.log('[syncContentToGitHub] File does not exist (404), creating new');
     }
     // Якщо 404 - файл новий, sha залишиться null
 
     // Кодуємо вміст
-    const encodedContent = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2))));
+    console.log('[syncContentToGitHub] Encoding content...');
+    const contentString = JSON.stringify(content, null, 2);
+    const encodedContent = btoa(unescape(encodeURIComponent(contentString)));
+    console.log('[syncContentToGitHub] Encoded content length:', encodedContent.length);
 
     const body: any = {
       message: `chore: Update site content via admin panel - ${new Date().toLocaleString()}`,
@@ -68,6 +88,12 @@ export const syncContentToGitHub = async (
       body.sha = sha;
     }
 
+    console.log('[syncContentToGitHub] Sending PUT request with:', {
+      hasMessage: !!body.message,
+      hasContent: !!body.content,
+      hasSha: !!body.sha,
+    });
+
     const putResponse = await fetch(apiUrl, {
       method: 'PUT',
       headers: {
@@ -77,13 +103,19 @@ export const syncContentToGitHub = async (
       body: JSON.stringify(body),
     });
 
+    console.log('[syncContentToGitHub] PUT response status:', putResponse.status);
+
     if (!putResponse.ok) {
+      const errorText = await putResponse.text();
+      console.error('[syncContentToGitHub] GitHub PUT error:', errorText);
       throw new Error(`GitHub API error: ${putResponse.status}`);
     }
 
-    return await putResponse.json();
+    const result = await putResponse.json();
+    console.log('[syncContentToGitHub] Sync successful! Commit SHA:', result.commit?.sha);
+    return result;
   } catch (error) {
-    console.error('Failed to sync to GitHub:', error);
+    console.error('[syncContentToGitHub] Sync failed:', error);
     throw error;
   }
 };
