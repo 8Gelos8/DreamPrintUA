@@ -191,6 +191,7 @@ const DesktopGallery: React.FC = () => {
     <div 
       ref={containerRef}
       className="relative w-full h-[600px] md:h-[700px] overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl shadow-inner border-4 border-white perspective-1000"
+      style={{ transform: 'translateZ(0)' }}
     >
       {/* Desk texture */}
       <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
@@ -254,11 +255,13 @@ const DesktopGallery: React.FC = () => {
             }}
             className={`absolute cursor-pointer bg-white rounded-lg overflow-hidden ${borderColor} border-b-4 hover:shadow-2xl transition-all`}
             style={{
-              left: item.x,
-              top: item.y,
+              left: `${item.x}px`,
+              top: `${item.y}px`,
               width: item.width,
               height: item.height,
               rotate: isHovered ? 0 : item.rotation,
+              willChange: 'transform',
+              transform: 'translateZ(0)',
             }}
           >
             {/* Tape effect */}
