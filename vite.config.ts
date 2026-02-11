@@ -9,6 +9,15 @@ export default defineConfig(({ mode }) => {
         port: 3000,
         host: '0.0.0.0',
       },
+      build: {
+        rollupOptions: {
+          output: {
+            entryFileNames: `[name]-[hash:8].js`,
+            chunkFileNames: `[name]-[hash:8].js`,
+            assetFileNames: `[name]-[hash:8].[ext]`
+          }
+        }
+      },
       plugins: [react()],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
