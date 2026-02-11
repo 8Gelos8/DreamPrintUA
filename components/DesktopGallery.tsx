@@ -171,26 +171,36 @@ const DesktopGallery: React.FC = () => {
   const allItems = [...userPhotos, ...items];
   const selectedItem = allItems.find(item => item.id === selectedId);
 
+  // Calculate dynamic height based on number of items
+  const estimatedHeight = allItems.length > 0 
+    ? Math.max(700, Math.ceil(allItems.length / 3) * 300)
+    : 700;
+
   // Generate positions on mount and when items change
   useEffect(() => {
     if (containerRef.current && allItems.length > 0) {
       const rect = containerRef.current.getBoundingClientRect();
       // Use container dimensions or fallback to defaults
       const width = rect.width > 0 ? rect.width : 1200;
-      const height = rect.height > 0 ? rect.height : 700;
+      const height = estimatedHeight;
       const positioned = generatePositions(allItems, width, height);
       setPositionedItems(positioned);
     }
-  }, [allItems, generatePositions]);
+  }, [allItems, generatePositions, estimatedHeight]);
 
   const handleCardHover = (id: string | null) => {
     setHoveredId(id);
   };
 
+  const estimatedHeight = allItems.length > 0 
+    ? Math.max(700, Math.ceil(allItems.length / 3) * 300)
+    : 700;
+
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[600px] md:h-[700px] overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl shadow-inner border-4 border-white perspective-1000"
+      className="relative w-full overflow-y-auto bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl shadow-inner border-4 border-white perspective-1000"
+      style={{ minHeight: estimatedHeight, height: estimatedHeight }}
     >
       {/* Desk texture */}
       <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #a8a29e 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
