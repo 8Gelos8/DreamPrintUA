@@ -116,7 +116,18 @@ const DesktopGallery: React.FC = () => {
     const stored = localStorage.getItem('productPhotos_v2') || '[]';
     try {
       const photos = JSON.parse(stored);
-      setUserPhotos(photos);
+      // Процесуємо фото щоб додати позиціонування та ротацію
+      const processedPhotos = photos.map((photo: any) => {
+        const seed = photo.id.charCodeAt(0);
+        return {
+          ...photo,
+          rotation: photo.rotation ?? (seed % 30) - 15,
+          top: photo.top ?? `${(seed % 60) + 10}%`,
+          left: photo.left ?? `${((seed * 17) % 70) + 5}%`,
+          zIndex: photo.zIndex ?? 1,
+        };
+      });
+      setUserPhotos(processedPhotos);
     } catch (e) {
       console.error('Failed to parse user photos', e);
     }

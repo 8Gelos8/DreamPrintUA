@@ -1,8 +1,11 @@
 import React from 'react';
-import { PRICES } from '../constants';
 import { ShoppingBag, ArrowRightCircle } from 'lucide-react';
+import { useContent } from '../contexts/ContentContext';
+import { PRICES } from '../constants';
 
 const Prices: React.FC = () => {
+  const { content } = useContent();
+  const prices = content.prices && content.prices.length > 0 ? content.prices : PRICES;
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-16">
@@ -15,7 +18,7 @@ const Prices: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {PRICES.map((item, index) => (
+          {prices.map((item, index) => (
               <div key={index} className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm hover:shadow-xl hover:border-dream-cyan/30 transition-all duration-300 group">
                   <div className="flex justify-between items-start mb-4">
                       <div className="p-3 bg-stone-50 rounded-xl text-stone-400 group-hover:bg-dream-cyan group-hover:text-white transition-colors">
