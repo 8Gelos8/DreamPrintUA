@@ -60,10 +60,6 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       console.log('[ContentContext] Calling syncContentToGitHub...');
       await syncContentToGitHub(contentWithPhotos, config.token, config.username, config.repo);
       console.log('[ContentContext] Sync completed successfully!');
-      
-      // Notify all components that sync is complete so they can refresh
-      window.dispatchEvent(new Event('syncComplete'));
-      console.log('[ContentContext] Dispatched syncComplete event');
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Помилка синхронізації';
       console.error('[ContentContext] Sync failed:', errorMsg);

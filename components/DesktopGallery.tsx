@@ -142,90 +142,67 @@ const DesktopGallery: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log('[DesktopGallery] Mounting, loading initial data...');
     loadFromGitHub();
     loadUserPhotos();
     
     const handlePhotosUpdate = () => {
-      console.log('[DesktopGallery] photosUpdated event received, reloading...');
       loadUserPhotos();
     };
-
-    const handleSyncComplete = () => {
-      console.log('[DesktopGallery] syncComplete event received, reloading from GitHub...');
-      loadUserPhotos();
-    };
-
     window.addEventListener('photosUpdated', handlePhotosUpdate);
-    window.addEventListener('syncComplete', handleSyncComplete);
-
-    // Periodically refresh photos from GitHub every 30 seconds
-    const refreshInterval = setInterval(() => {
-      console.log('[DesktopGallery] Periodic refresh (30s)...');
-      loadUserPhotos();
-    }, 30000);
-
-    return () => {
-      window.removeEventListener('photosUpdated', handlePhotosUpdate);
-      window.removeEventListener('syncComplete', handleSyncComplete);
-      clearInterval(refreshInterval);
-    };
+    return () => window.removeEventListener('photosUpdated', handlePhotosUpdate);
   }, [loadFromGitHub]);
 
   const loadUserPhotos = useCallback(() => {
-    // First try to load from localStorage
-    const stored = localStorage.getItem('productPhotos_v2') || '[]';
-    try {
-      const photos = JSON.parse(stored);
-      console.log('[DesktopGallery] Loaded photos from localStorage:', { count: photos.length });
-      setUserPhotos(photos);
-    } catch (e) {
-      console.error('[DesktopGallery] Failed to parse user photos from localStorage', e);
-    }
-
-    // Also try to load from GitHub siteContent for multi-device sync
-    const loadFromGitHubContent = async () => {
+    // Priority: Try GitHub first, fallback to localStorage
+    const loadPhotos = async () => {
       try {
         const config = GITHUB_CONFIG;
-        console.log('[DesktopGallery] GitHub config:', {
-          username: config.username,
-          repo: config.repo,
-          isConfigured: config.username !== 'YOUR_GITHUB_USERNAME',
+        console.log('[DesktopGallery] Attempting to load photos...', {
+          isGitHubConfigured: config.username !== 'YOUR_GITHUB_USERNAME',
         });
 
-        if (config.username === 'YOUR_GITHUB_USERNAME') {
-          console.log('[DesktopGallery] GitHub not configured, skipping remote load');
-          return;
-        }
+        // Try GitHub first
+        if (config.username !== 'YOUR_GITHUB_USERNAME') {
+          try {
+            console.log('[DesktopGallery] Fetching photos from GitHub...');
+            const contentUrl = `https://api.github.com/repos/${config.username}/${config.repo}/contents/src/content.json?t=${Date.now()}`;
+            const response = await fetch(contentUrl);
+            
+            console.log('[DesktopGallery] GitHub response status:', response.status);
 
-        console.log('[DesktopGallery] Fetching photos from GitHub...');
-        const contentUrl = `https://api.github.com/repos/${config.username}/${config.repo}/contents/src/content.json?t=${Date.now()}`;
-        const response = await fetch(contentUrl);
-        
-        console.log('[DesktopGallery] GitHub response status:', response.status);
+            if (response.ok) {
+              const data = await response.json();
+              const content = JSON.parse(atob(data.content));
+              console.log('[DesktopGallery] Decoded content from GitHub:', {
+                hasPhotos: !!content.photos,
+                photosCount: content.photos?.length,
+              });
 
-        if (response.ok) {
-          const data = await response.json();
-          const content = JSON.parse(atob(data.content));
-          console.log('[DesktopGallery] Decoded content from GitHub:', {
-            hasPhotos: !!content.photos,
-            photosCount: content.photos?.length,
-          });
-
-          if (content.photos && Array.isArray(content.photos)) {
-            // Merge with existing photos, but prefer GitHub version
-            console.log('[DesktopGallery] Using GitHub photos, count:', content.photos.length);
-            setUserPhotos(content.photos);
+              if (content.photos && Array.isArray(content.photos) && content.photos.length > 0) {
+                console.log('[DesktopGallery] ✓ Using GitHub photos, count:', content.photos.length);
+                setUserPhotos(content.photos);
+                // Save to localStorage for offline access
+                localStorage.setItem('productPhotos_v2', JSON.stringify(content.photos));
+                return;
+              }
+            }
+          } catch (gitError) {
+            console.warn('[DesktopGallery] GitHub fetch failed, will try localStorage:', gitError);
           }
-        } else {
-          console.warn('[DesktopGallery] GitHub response not ok, status:', response.status);
         }
-      } catch (error) {
-        console.error('[DesktopGallery] Could not load photos from GitHub content:', error);
+
+        // Fallback to localStorage
+        console.log('[DesktopGallery] Falling back to localStorage...');
+        const stored = localStorage.getItem('productPhotos_v2') || '[]';
+        const photos = JSON.parse(stored);
+        console.log('[DesktopGallery] ✓ Loaded photos from localStorage:', { count: photos.length });
+        setUserPhotos(photos);
+      } catch (e) {
+        console.error('[DesktopGallery] Failed to load photos:', e);
       }
     };
 
-    loadFromGitHubContent();
+    loadPhotos();
   }, []);
 
   const deleteUserPhoto = (id: string) => {

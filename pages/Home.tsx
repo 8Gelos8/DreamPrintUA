@@ -15,7 +15,9 @@ const Home: React.FC = () => {
 
   // Синхронізуємо фото з GitHub контенту при завантаженні
   useEffect(() => {
+    console.log('[Home] Component mounted, checking photos...');
     if (content.photos && content.photos.length > 0) {
+      console.log('[Home] Found photos in content context, merging...', { count: content.photos.length });
       const localPhotos = JSON.parse(localStorage.getItem('productPhotos_v2') || '[]');
       const githubPhotos = content.photos;
       
@@ -26,9 +28,12 @@ const Home: React.FC = () => {
       ];
       
       if (mergedPhotos.length > 0) {
+        console.log('[Home] Merged photos, total:', mergedPhotos.length);
         localStorage.setItem('productPhotos_v2', JSON.stringify(mergedPhotos));
         window.dispatchEvent(new Event('photosUpdated'));
       }
+    } else {
+      console.log('[Home] No photos in content context');
     }
   }, [content.photos]);
 

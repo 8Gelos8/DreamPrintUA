@@ -208,7 +208,6 @@ const AdminPhotoUpload: React.FC = () => {
         console.log('[AdminPhotoUpload] Starting GitHub sync...');
         await syncToGitHub();
         console.log('[AdminPhotoUpload] GitHub sync completed!');
-        window.dispatchEvent(new Event('syncComplete'));
       } catch (syncErr) {
         console.error('[AdminPhotoUpload] GitHub sync failed:', syncErr);
         setError('Фото збережено локально, але не синхронізовано з GitHub');
