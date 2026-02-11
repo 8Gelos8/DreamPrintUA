@@ -142,14 +142,34 @@ const DesktopGallery: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    console.log('[DesktopGallery] Mounting, loading initial data...');
     loadFromGitHub();
     loadUserPhotos();
     
     const handlePhotosUpdate = () => {
+      console.log('[DesktopGallery] photosUpdated event received, reloading...');
       loadUserPhotos();
     };
+
+    const handleSyncComplete = () => {
+      console.log('[DesktopGallery] syncComplete event received, reloading from GitHub...');
+      loadUserPhotos();
+    };
+
     window.addEventListener('photosUpdated', handlePhotosUpdate);
-    return () => window.removeEventListener('photosUpdated', handlePhotosUpdate);
+    window.addEventListener('syncComplete', handleSyncComplete);
+
+    // Periodically refresh photos from GitHub every 30 seconds
+    const refreshInterval = setInterval(() => {
+      console.log('[DesktopGallery] Periodic refresh (30s)...');
+      loadUserPhotos();
+    }, 30000);
+
+    return () => {
+      window.removeEventListener('photosUpdated', handlePhotosUpdate);
+      window.removeEventListener('syncComplete', handleSyncComplete);
+      clearInterval(refreshInterval);
+    };
   }, [loadFromGitHub]);
 
   const loadUserPhotos = useCallback(() => {
