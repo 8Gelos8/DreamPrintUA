@@ -56,6 +56,19 @@
         localStorage.setItem('__build_version__', BUILD_VERSION);
       }
     </script>
+    <script type="module">
+      // Force reload if new version deployed
+      const CURRENT_VERSION = '3f1a80a-' + new Date().getTime();
+      console.log('[index.html] Deployed version:', CURRENT_VERSION);
+      
+      // Check if this is a new version
+      const oldVersion = sessionStorage.getItem('deployVersion');
+      if (oldVersion && oldVersion !== CURRENT_VERSION) {
+        console.log('[index.html] Version changed, reloading...');
+        window.location.reload(true);
+      }
+      sessionStorage.setItem('deployVersion', CURRENT_VERSION);
+    </script>
     <script type="module" src="./index.tsx"></script>
   </body>
 </html>
