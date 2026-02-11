@@ -254,6 +254,8 @@ const DesktopGallery: React.FC = () => {
             }}
             className={`absolute cursor-pointer bg-white rounded-lg overflow-hidden ${borderColor} border-b-4 hover:shadow-2xl transition-all`}
             style={{
+              left: item.x,
+              top: item.y,
               width: item.width,
               height: item.height,
               rotate: isHovered ? 0 : item.rotation,
