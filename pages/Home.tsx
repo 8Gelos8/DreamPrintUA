@@ -13,6 +13,8 @@ const Home: React.FC = () => {
   const [editedTitle, setEditedTitle] = useState(content.homeTitle);
   const [editedDesc, setEditedDesc] = useState(content.homeDescription);
 
+  console.log('[Home] Component rendered');
+
   // Синхронізуємо фото з GitHub контенту при завантаженні
   useEffect(() => {
     console.log('[Home] Component mounted, checking photos...');

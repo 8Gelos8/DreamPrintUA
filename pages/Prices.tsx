@@ -14,7 +14,8 @@ const Prices: React.FC = () => {
     price: '',
     details: ''
   });
-  
+
+  console.log('[Prices] Component rendered');
   useEffect(() => {
     if (content.prices && content.prices.length > 0) {
       setDisplayPrices(content.prices);

@@ -29,6 +29,7 @@ const Navbar: React.FC = () => {
                 <NavLink
                   key={item.path}
                   to={item.path}
+                  onClick={() => console.log('[Navbar] NavLink clicked:', item.path)}
                   className={({ isActive }) =>
                     `px-4 py-2 rounded-full text-base font-bold transition-all duration-300 ${
                       isActive
