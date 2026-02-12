@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -9,6 +9,16 @@ import Admin from './pages/Admin';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
+  
+  React.useEffect(() => {
+    console.log('[AppContent] Location changed:', {
+      pathname: location.pathname,
+      search: location.search,
+      hash: location.hash,
+      key: location.key,
+      timestamp: new Date().toISOString()
+    });
+  }, [location]);
   
   React.useEffect(() => {
     const buildTime = '2026-02-11T' + Math.random().toString(36).slice(2);
@@ -42,9 +52,9 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppContent />
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 
