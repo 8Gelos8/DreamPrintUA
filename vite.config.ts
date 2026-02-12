@@ -1,23 +1,26 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import fs from 'fs';
 
 const spaPlugin = () => {
   return {
     name: 'spa-history-fallback',
     apply: 'serve',
-    enforce: 'post',
+    enforce: 'pre',
     configureServer(server) {
       return () => {
         server.middlewares.use((req, res, next) => {
-          // Пропускаємо файли з розширеннями
-          if (!/\/$/.test(req.url) && /\.[\w]+$/.test(req.url)) {
+          // Ігноруємо api запити
+          if (req.url.startsWith('/api')) {
             return next();
           }
-          // Для всіх інших запитів (без розширення) повертаємо index.html
-          res.setHeader('Content-Type', 'text/html');
-          res.end(fs.readFileSync('./index.html', 'utf-8'));
+          // Ігноруємо файли з розширеннями (js, css, png, etc)
+          if (/\.\w+(\?.*)?$/.test(req.url)) {
+            return next();
+          }
+          // Для всіх інших запитів повертаємо index.html
+          req.url = '/index.html';
+          next();
         });
       };
     }
