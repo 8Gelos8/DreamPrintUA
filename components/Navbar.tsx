@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { NAV_ITEMS } from '../constants';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  const handleNavClick = (path: string) => {
+    navigate(path, { replace: false });
+    setIsOpen(false);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-lg shadow-dream-purple/5 border-b border-white">
@@ -26,19 +32,17 @@ const Navbar: React.FC = () => {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {NAV_ITEMS.map((item) => (
-                <NavLink
+                <button
                   key={item.path}
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `px-4 py-2 rounded-full text-base font-bold transition-all duration-300 ${
-                      isActive
-                        ? 'bg-gradient-to-r from-dream-pink to-dream-purple text-white shadow-md transform scale-105'
-                        : 'text-stone-600 hover:text-dream-pink hover:bg-pink-50'
-                    }`
-                  }
+                  onClick={() => handleNavClick(item.path)}
+                  className={`px-4 py-2 rounded-full text-base font-bold transition-all duration-300 ${
+                    window.location.hash === `#${item.path}`
+                      ? 'bg-gradient-to-r from-dream-pink to-dream-purple text-white shadow-md transform scale-105'
+                      : 'text-stone-600 hover:text-dream-pink hover:bg-pink-50'
+                  }`}
                 >
                   {item.label}
-                </NavLink>
+                </button>
               ))}
             </div>
           </div>
@@ -59,20 +63,17 @@ const Navbar: React.FC = () => {
         <div className="md:hidden bg-white border-b border-dream-pink/20">
           <div className="px-4 pt-2 pb-6 space-y-2">
             {NAV_ITEMS.map((item) => (
-              <NavLink
+              <button
                 key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className={({ isActive }) =>
-                  `block px-4 py-3 rounded-xl text-lg font-bold text-center transition-all ${
-                    isActive
-                      ? 'bg-gradient-to-r from-dream-cyan to-dream-blue text-white shadow-lg'
-                      : 'text-stone-600 hover:text-dream-pink hover:bg-pink-50'
-                  }`
-                }
+                onClick={() => handleNavClick(item.path)}
+                className={`w-full px-4 py-3 rounded-xl text-lg font-bold text-center transition-all ${
+                  window.location.hash === `#${item.path}`
+                    ? 'bg-gradient-to-r from-dream-cyan to-dream-blue text-white shadow-lg'
+                    : 'text-stone-600 hover:text-dream-pink hover:bg-pink-50'
+                }`}
               >
                 {item.label}
-              </NavLink>
+              </button>
             ))}
           </div>
         </div>
