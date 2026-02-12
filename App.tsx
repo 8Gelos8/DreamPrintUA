@@ -27,12 +27,12 @@ const AppContent: React.FC = () => {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/prices" element={<Prices />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="*" element={<Home />} />
+        <Route path="/" element={<Home key="home" />} />
+        <Route path="/products" element={<Products key="products" />} />
+        <Route path="/prices" element={<Prices key="prices" />} />
+        <Route path="/about" element={<About key="about" />} />
+        <Route path="/admin" element={<Admin key="admin" />} />
+        <Route path="*" element={<Home key="fallback" />} />
       </Routes>
     </Layout>
   );
