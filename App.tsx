@@ -24,6 +24,8 @@ const AppContent: React.FC = () => {
     });
   }, [location]);
 
+  console.log('[AppContent] Current location.pathname:', location.pathname);
+
   return (
     <Layout>
       <Routes>
