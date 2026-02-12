@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Star, Heart, Sparkles, Edit2, Save, X } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import DesktopGallery from '../components/DesktopGallery';
 import FileUpload from '../components/FileUpload';
 import { useContent } from '../contexts/ContentContext';
 import { useAdmin } from '../contexts/AdminContext';
 
 const Home: React.FC = () => {
-  const location = useLocation();
   const { content, updateContent, syncToGitHub, isSyncing } = useContent();
   const { isAdmin } = useAdmin();
   const [editMode, setEditMode] = useState(false);
@@ -15,10 +14,6 @@ const Home: React.FC = () => {
   const [editedDesc, setEditedDesc] = useState(content.homeDescription);
 
   // Синхронізуємо фото з GitHub контенту при завантаженні
-  useEffect(() => {
-    setEditMode(false);
-  }, [location.pathname]);
-
   useEffect(() => {
     console.log('[Home] Component mounted, checking photos...');
     if (content.photos && content.photos.length > 0) {

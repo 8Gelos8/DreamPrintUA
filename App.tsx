@@ -7,6 +7,21 @@ import Prices from './pages/Prices';
 import About from './pages/About';
 import Admin from './pages/Admin';
 
+const RoutesWrapper: React.FC = () => {
+  const location = useLocation();
+  
+  return (
+    <Routes key={location.pathname}>
+      <Route path="/" element={<Home />} />
+      <Route path="/products" element={<Products />} />
+      <Route path="/prices" element={<Prices />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/admin" element={<Admin />} />
+      <Route path="*" element={<Home />} />
+    </Routes>
+  );
+};
+
 const AppContent: React.FC = () => {
   const location = useLocation();
   
@@ -26,14 +41,7 @@ const AppContent: React.FC = () => {
 
   return (
     <Layout>
-      <Routes>
-        <Route path="/" element={<Home key="home" />} />
-        <Route path="/products" element={<Products key="products" />} />
-        <Route path="/prices" element={<Prices key="prices" />} />
-        <Route path="/about" element={<About key="about" />} />
-        <Route path="/admin" element={<Admin key="admin" />} />
-        <Route path="*" element={<Home key="fallback" />} />
-      </Routes>
+      <RoutesWrapper />
     </Layout>
   );
 };
