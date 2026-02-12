@@ -2,8 +2,6 @@ import React from 'react';
 import { Heart, Users, Sparkles } from 'lucide-react';
 
 const About: React.FC = () => {
-  console.log('[About] Component rendered');
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
        {/* Intro */}

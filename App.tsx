@@ -11,16 +11,6 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   
   React.useEffect(() => {
-    console.log('[AppContent] Location changed:', {
-      pathname: location.pathname,
-      search: location.search,
-      hash: location.hash,
-      key: location.key,
-      timestamp: new Date().toISOString()
-    });
-  }, [location]);
-  
-  React.useEffect(() => {
     const buildTime = '2026-02-11T' + Math.random().toString(36).slice(2);
     console.log('[App v8f7d825] Rendering - current location:', {
       pathname: location.pathname,
@@ -33,8 +23,6 @@ const AppContent: React.FC = () => {
       timestamp: new Date().toISOString()
     });
   }, [location]);
-
-  console.log('[AppContent] Current location.pathname:', location.pathname);
 
   return (
     <Layout>

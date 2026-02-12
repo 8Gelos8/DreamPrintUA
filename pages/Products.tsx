@@ -20,8 +20,6 @@ const Products: React.FC = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  console.log('[Products] Component rendered');
-
   useEffect(() => {
     if (content.products && content.products.length > 0) {
       setDisplayProducts(content.products);
